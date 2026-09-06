@@ -1,12 +1,12 @@
 package frc.robot.subsystems.shooter;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
+import static org.wpilib.units.Units.Amps;
+import static org.wpilib.units.Units.RPM;
+import static org.wpilib.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.RotationsPerSecondPerSecond;
+import static org.wpilib.units.Units.Second;
+import static org.wpilib.units.Units.Seconds;
+import static org.wpilib.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.math.Lazy;
@@ -19,15 +19,14 @@ import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import coppercore.wpilib_interface.tuning.LoggedTunablePIDGains;
 import coppercore.wpilib_interface.tuning.TestModeManager;
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.MutAngularVelocity;
-import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
+import org.wpilib.math.filter.Debouncer;
+import org.wpilib.math.filter.Debouncer.DebounceType;
+import org.wpilib.math.util.Units;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.units.measure.Voltage;
+import org.wpilib.driverstation.internal.DriverStationBackend;
+import org.wpilib.system.RobotController;
+import org.wpilib.system.Timer;
 import frc.robot.CoordinationLayer.ShotMode;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
@@ -97,7 +96,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   Lazy<LoggedTunableNumber> shooterTuningVolts;
 
   // State variables
-  private final MutAngularVelocity targetVelocity = RPM.mutable(0.0);
+  private AngularVelocity targetVelocity = RPM.of(0.0);
 
   @AutoLogOutput(key = "Shooter/requestedAction")
   private ShooterAction requestedAction = ShooterAction.Coast;
@@ -206,7 +205,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
-    long startTimeUs = RobotController.getFPGATime();
+    long startTimeUs = RobotController.getTime();
 
     Logger.recordOutput("Shooter/TargetVelocityRadPerSec", targetVelocity.in(RadiansPerSecond));
 
@@ -228,7 +227,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
           JsonConstants.shooterConstants.invertFollower);
     }
 
-    long endTimeUs = RobotController.getFPGATime();
+    long endTimeUs = RobotController.getTime();
     if (JsonConstants.featureFlags.logPeriodicTiming) {
       Logger.recordOutput("PeriodicTime/ShooterMs", (endTimeUs - startTimeUs) / 1000.0);
     }
@@ -319,7 +318,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
         leadMotor.controlOpenLoopVoltage(Volts.of(shooterTuningVolts.get().getAsDouble()));
       }
       case ShooterFFCharacterization -> {
-        if (DriverStation.isEnabled()) {
+        if (DriverStationBackend.isEnabled()) {
           Voltage characterizationVoltage =
               (Voltage)
                   JsonConstants.shooterConstants.characterizationRampRate.times(
@@ -364,7 +363,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
    * @param velocityRPM A double containing target velocity, in RPM
    */
   public void setTargetVelocityRPM(double velocityRPM) {
-    targetVelocity.mut_replace(velocityRPM, RPM);
+    targetVelocity = new AngularVelocity(velocityRPM, 1, RPM);
     requestedAction = ShooterAction.ControlVelocity;
   }
 

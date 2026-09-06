@@ -1,8 +1,8 @@
 package frc.robot.constants;
 
-import static edu.wpi.first.units.Units.Seconds;
+import static org.wpilib.units.Units.Seconds;
 
-import edu.wpi.first.units.measure.Time;
+import org.wpilib.units.measure.Time;
 
 public class StrategyConstants {
   // Due to the presence of these constants, it is necessary for the driver(s) to play an active

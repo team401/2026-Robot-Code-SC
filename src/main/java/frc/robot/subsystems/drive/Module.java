@@ -11,14 +11,14 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import coppercore.wpilib_interface.tuning.PIDGains;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.RobotController;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.kinematics.SwerveModulePosition;
+import org.wpilib.math.kinematics.SwerveModuleVelocity;
+import org.wpilib.math.util.Units;
+import org.wpilib.units.measure.Current;
+import org.wpilib.annotation.NoDiscard;
+import org.wpilib.driverstation.Alert;
+import org.wpilib.system.RobotController;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import org.littletonrobotics.junction.Logger;
@@ -49,14 +49,14 @@ public class Module {
     driveDisconnectedAlert =
         new Alert(
             "Disconnected drive motor on module " + Integer.toString(index) + ".",
-            AlertType.kError);
+            Alert.Level.HIGH);
     turnDisconnectedAlert =
         new Alert(
-            "Disconnected turn motor on module " + Integer.toString(index) + ".", AlertType.kError);
+            "Disconnected turn motor on module " + Integer.toString(index) + ".", Alert.Level.HIGH);
     turnEncoderDisconnectedAlert =
         new Alert(
             "Disconnected turn encoder on module " + Integer.toString(index) + ".",
-            AlertType.kError);
+            Alert.Level.HIGH);
 
     loggerKey = "Drive/Module" + Integer.toString(index);
   }
@@ -99,13 +99,13 @@ public class Module {
   }
 
   /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */
-  public void runSetpoint(SwerveModuleState state) {
+  public void runSetpoint(SwerveModuleVelocity state) {
     // Optimize velocity setpoint
-    state.optimize(getAngle());
-    state.cosineScale(inputs.turnPosition);
+    state = state.optimize(getAngle());
+    state = state.cosineScale(inputs.turnPosition);
 
     // Apply setpoints
-    io.setDriveVelocity(state.speedMetersPerSecond / constants.WheelRadius);
+    io.setDriveVelocity(state.velocity / constants.WheelRadius);
     io.setTurnPosition(state.angle);
   }
 
@@ -142,8 +142,8 @@ public class Module {
   }
 
   /** Returns the module state (turn angle and drive velocity). */
-  public SwerveModuleState getState() {
-    return new SwerveModuleState(getVelocityMetersPerSec(), getAngle());
+  public SwerveModuleVelocity getState() {
+    return new SwerveModuleVelocity(getVelocityMetersPerSec(), getAngle());
   }
 
   /** Returns the module positions received this cycle. */

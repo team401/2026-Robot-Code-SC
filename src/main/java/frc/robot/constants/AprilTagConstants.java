@@ -1,8 +1,8 @@
 package frc.robot.constants;
 
 import coppercore.parameter_tools.json.annotations.JSONExclude;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.wpilibj.Filesystem;
+import org.wpilib.vision.apriltag.AprilTagFieldLayout;
+import org.wpilib.system.Filesystem;
 import java.io.IOException;
 import java.nio.file.Path;
 

@@ -1,14 +1,14 @@
 package frc.robot.coordination;
 
-import static edu.wpi.first.units.Units.Seconds;
+import static org.wpilib.units.Units.Seconds;
 
 import coppercore.wpilib_interface.alliance_util.AllianceUtil;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.DriverStation.MatchType;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.simulation.DriverStationSim;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.wpilib.driverstation.Alliance;
+import org.wpilib.driverstation.MatchType;
+import org.wpilib.driverstation.internal.DriverStationBackend;
+import org.wpilib.system.Timer;
+import org.wpilib.simulation.DriverStationSim;
+import org.wpilib.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.constants.JsonConstants;
@@ -47,7 +47,7 @@ public class MatchState {
    */
   @AutoLogOutput(key = "MatchState/isInMatch")
   public boolean isInMatch() {
-    Logger.recordOutput("MatchState/matchType", DriverStation.getMatchType());
+    Logger.recordOutput("MatchState/matchType", DriverStationBackend.getMatchType());
     // Hardcode true for shop testing; getMatchType doesn't return a correct value here
     return true;
     // || DriverStation.getMatchType() == DriverStation.MatchType.Practice
@@ -130,7 +130,7 @@ public class MatchState {
       matchTypeChooser = new LoggedDashboardChooser<>("MatchState/MatchType");
 
       for (var matchType : MatchType.values()) {
-        if (matchType == MatchType.None) {
+        if (matchType == MatchType.NONE) {
           matchTypeChooser.addDefaultOption(matchType.name(), matchType);
         } else {
           matchTypeChooser.addOption(matchType.name(), matchType);
@@ -156,7 +156,7 @@ public class MatchState {
   private double getPreciseMatchTime() {
     double timerTime = preciseMatchTimer.get();
 
-    if (DriverStation.isAutonomous()) {
+    if (DriverStationBackend.isAutonomous()) {
       return StrategyConstants.autoStart - timerTime;
     } else {
       return StrategyConstants.transitionStart - timerTime;
@@ -164,7 +164,7 @@ public class MatchState {
   }
 
   private double getMatchTime() {
-    double dsMatchTime = DriverStation.getMatchTime();
+    double dsMatchTime = DriverStationBackend.getMatchTime();
     double preciseMatchTime = getPreciseMatchTime();
 
     if (Math.abs(dsMatchTime - preciseMatchTime)
@@ -181,7 +181,7 @@ public class MatchState {
       DriverStationSim.setMatchType(matchTypeChooser.get());
     }
 
-    if (DriverStation.isTeleop()) {
+    if (DriverStationBackend.isTeleop()) {
       hasTeleopEnabled = true;
     }
 
@@ -227,21 +227,18 @@ public class MatchState {
   }
 
   private void checkGameDataForAutoWinner() {
-    String gameData = DriverStation.getGameSpecificMessage();
-
-    if (gameData == null) {
-      return;
-    }
+    DriverStationBackend.getGameData().ifPresent((gameData) -> {
 
     if (gameData.length() > 0) {
       if (gameData.startsWith("R")) {
-        wonAuto = Optional.of(Alliance.Red);
+        wonAuto = Optional.of(Alliance.RED);
         receivedAutoWinnerFromFMS = true;
       } else if (gameData.startsWith("B")) {
-        wonAuto = Optional.of(Alliance.Blue);
+        wonAuto = Optional.of(Alliance.BLUE);
         receivedAutoWinnerFromFMS = true;
       }
     }
+   });
   }
 
   public Optional<Alliance> getAutoWinner() {
@@ -251,9 +248,9 @@ public class MatchState {
 
   public MatchShift getCurrentShift(double currentMatchTime) {
     // The behavior of this method is determined largely by the docs here
-    // https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/wpilibj/DriverStation.html#getMatchTime()
+    // https://github.wpilib.org/allwpilib/docs/release/java/org.wpilib.driverstation.DriverStation.html#getMatchTime()
     if (isInMatch()) {
-      if (DriverStation.isAutonomous()) {
+      if (DriverStationBackend.isAutonomous()) {
         return MatchShift.Auto;
       } else {
         return getTeleopShiftFromMatchTime(currentMatchTime);

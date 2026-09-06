@@ -1,9 +1,9 @@
 package frc.robot.constants;
 
-import static edu.wpi.first.units.Units.Hertz;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.Kilograms;
-import static edu.wpi.first.units.Units.Seconds;
+import static org.wpilib.units.Units.Hertz;
+import static org.wpilib.units.Units.KilogramSquareMeters;
+import static org.wpilib.units.Units.Kilograms;
+import static org.wpilib.units.Units.Seconds;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANdiConfiguration;
@@ -16,13 +16,13 @@ import coppercore.parameter_tools.json.annotations.AfterJsonLoad;
 import coppercore.parameter_tools.json.annotations.JSONExclude;
 import coppercore.wpilib_interface.subsystems.dio_switch.DigitalInputIOCANdi.CANdiSignal;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX.SignalRefreshRates;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Mass;
-import edu.wpi.first.units.measure.MomentOfInertia;
-import edu.wpi.first.units.measure.Time;
+import org.wpilib.math.geometry.Rotation3d;
+import org.wpilib.math.geometry.Transform2d;
+import org.wpilib.math.geometry.Transform3d;
+import org.wpilib.math.util.Units;
+import org.wpilib.units.measure.Mass;
+import org.wpilib.units.measure.MomentOfInertia;
+import org.wpilib.units.measure.Time;
 
 public class RobotInfo {
 

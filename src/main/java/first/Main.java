@@ -1,14 +1,10 @@
-// Copyright (c) 2021-2026 Littleton Robotics
-// http://github.com/Mechanical-Advantage
-//
-// Use of this source code is governed by a BSD
-// license that can be found in the LICENSE file
-// at the root directory of this project.
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
 
-package frc.robot;
+package first;
 
 import org.wpilib.framework.RobotBase;
-import org.wpilib.framework.TimedRobot;
 
 /**
  * Do NOT add any static variables to this class, or any initialization at all. Unless you know what
@@ -24,6 +20,6 @@ public final class Main {
    * <p>If you change your main robot class, change the parameter type.
    */
   public static void main(String... args) {
-    RobotBase.startRobot(TimedRobot.class);
+    RobotBase.startRobot(frc.robot.Robot.class);
   }
 }

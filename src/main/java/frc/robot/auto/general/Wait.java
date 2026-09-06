@@ -1,8 +1,8 @@
 package frc.robot.auto.general;
 
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import org.wpilib.units.measure.Time;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.WaitCommand;
 import frc.robot.auto.AutoAction;
 
 public class Wait extends AutoAction {
