@@ -1,12 +1,12 @@
 package frc.robot.constants;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Hertz;
-import static edu.wpi.first.units.Units.KilogramSquareMeters;
-import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
+import static org.wpilib.units.Units.Amps;
+import static org.wpilib.units.Units.Hertz;
+import static org.wpilib.units.Units.KilogramSquareMeters;
+import static org.wpilib.units.Units.RPM;
+import static org.wpilib.units.Units.Second;
+import static org.wpilib.units.Units.Seconds;
+import static org.wpilib.units.Units.Volts;
 
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.ClosedLoopRampsConfigs;
@@ -29,18 +29,18 @@ import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX.Sign
 import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
 import coppercore.wpilib_interface.subsystems.sim.FlywheelSimAdapter;
 import coppercore.wpilib_interface.tuning.PIDGains;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.AngularAcceleration;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Frequency;
-import edu.wpi.first.units.measure.MomentOfInertia;
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.units.measure.Velocity;
-import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import org.wpilib.math.interpolation.InterpolatingDoubleTreeMap;
+import org.wpilib.math.system.DCMotor;
+import org.wpilib.math.system.Models;
+import org.wpilib.units.VoltageUnit;
+import org.wpilib.units.measure.AngularAcceleration;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.units.measure.Current;
+import org.wpilib.units.measure.Frequency;
+import org.wpilib.units.measure.MomentOfInertia;
+import org.wpilib.units.measure.Time;
+import org.wpilib.units.measure.Velocity;
+import org.wpilib.simulation.FlywheelSim;
 
 public class ShooterConstants {
   public final Double[] distanceToViDistancesMeters = {1.8, 2.0, 3.5};
@@ -212,7 +212,7 @@ public class ShooterConstants {
     return new FlywheelSimAdapter(
         buildMechanismConfig(),
         new FlywheelSim(
-            LinearSystemId.createFlywheelSystem(
+            Models.flywheelFromPhysicalConstants(
                 DCMotor.getKrakenX60Foc(3), shooterMOI.in(KilogramSquareMeters), 1.0),
             DCMotor.getKrakenX60Foc(3)));
   }

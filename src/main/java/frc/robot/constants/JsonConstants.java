@@ -1,10 +1,12 @@
 package frc.robot.constants;
 
-import static edu.wpi.first.units.Units.Amp;
-import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Second;
+import static org.wpilib.units.Units.Amp;
+import static org.wpilib.units.Units.RPM;
+import static org.wpilib.units.Units.RotationsPerSecondPerSecond;
+import static org.wpilib.units.Units.Second;
 
+import com.therekrab.autopilot.APConstraints;
+import com.therekrab.autopilot.APConstraintsTypeAdapter;
 import com.therekrab.autopilot.APTarget;
 import coppercore.parameter_tools.json.JSONHandler;
 import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
@@ -18,11 +20,11 @@ import coppercore.parameter_tools.json.helpers.JSONConverter;
 import coppercore.parameter_tools.path_provider.EnvironmentHandler;
 import coppercore.wpilib_interface.controllers.Controllers;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.wpilibj.Filesystem;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Rotation3d;
+import org.wpilib.math.geometry.Transform2d;
+import org.wpilib.math.geometry.Transform3d;
+import org.wpilib.system.Filesystem;
 import frc.robot.RobotContainer;
 import frc.robot.auto.Autos;
 import frc.robot.constants.drive.DriveConstants;
@@ -74,6 +76,7 @@ public class JsonConstants {
 
     Controllers.applyControllerConfigToBuilder(jsonSyncSettings);
 
+    jsonSyncSettings.addJsonTypeAdapter(APConstraints.class, new APConstraintsTypeAdapter());
     jsonSyncSettings.addJsonTypeAdapterFactory(new OptionalTypeAdapterFactory());
 
     var pathProvider = environmentHandler.getEnvironmentPathProvider();

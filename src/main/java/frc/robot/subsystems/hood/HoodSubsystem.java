@@ -1,13 +1,13 @@
 package frc.robot.subsystems.hood;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
+import static org.wpilib.units.Units.Amps;
+import static org.wpilib.units.Units.Degrees;
+import static org.wpilib.units.Units.Radians;
+import static org.wpilib.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.RotationsPerSecond;
+import static org.wpilib.units.Units.RotationsPerSecondPerSecond;
+import static org.wpilib.units.Units.Seconds;
+import static org.wpilib.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.math.Lazy;
@@ -20,13 +20,12 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import coppercore.wpilib_interface.tuning.TestModeManager;
-import edu.wpi.first.units.AngularVelocityUnit;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.MutAngle;
-import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
+import org.wpilib.units.AngularVelocityUnit;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.driverstation.Alert;
+import org.wpilib.driverstation.internal.DriverStationBackend;
+import org.wpilib.system.RobotController;
 import frc.robot.CoordinationLayer.ShotMode;
 import frc.robot.DependencyOrderedExecutor;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
@@ -108,13 +107,12 @@ public class HoodSubsystem extends MonitoredSubsystem {
   @AutoLogOutput(key = "Hood/action")
   private HoodAction requestedAction = HoodAction.Idle;
 
-  private MutAngle goalExitPitch =
+  private Angle goalExitPitch =
       JsonConstants.hoodConstants
           .minHoodAngle
-          .plus(JsonConstants.hoodConstants.mechanismAngleToExitAngle)
-          .mutableCopy();
+          .plus(JsonConstants.hoodConstants.mechanismAngleToExitAngle);
 
-  private MutAngle goalAngle = JsonConstants.hoodConstants.minHoodAngle.mutableCopy();
+  private Angle goalAngle = JsonConstants.hoodConstants.minHoodAngle;
 
   // Dependencies (values from other subsystems/coordination layer passed in by the coordination
   // layer via setters)
@@ -145,7 +143,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
         new MonitorWithAlertBuilder()
             .withName("HoodMotorDisconnected")
             .withAlertText("Hood motor disconnected")
-            .withAlertType(AlertType.kError)
+            .withAlertType(Alert.Level.HIGH)
             .withTimeToFault(JsonConstants.hoodConstants.disconnectedDebounceTimeSeconds)
             .withLoggingEnabled(true)
             .withStickyness(false)
@@ -168,7 +166,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
         .when(hood -> hood.isHomingSwitchPressed(), "Homing switch is pressed")
         .transitionTo(idleState);
     homingWaitForButtonState
-        .when(() -> DriverStation.isEnabled(), "Robot is enabled")
+        .when(() -> DriverStationBackend.isEnabled(), "Robot is enabled")
         .transitionTo(homingWaitForMovementState);
 
     homingWaitForMovementState
@@ -281,12 +279,12 @@ public class HoodSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
-    long startTimeUs = RobotController.getFPGATime();
+    long startTimeUs = RobotController.getTime();
 
     Logger.recordOutput("Hood/state", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
 
-    long endTimeUs = RobotController.getFPGATime();
+    long endTimeUs = RobotController.getTime();
     if (JsonConstants.featureFlags.logPeriodicTiming) {
       Logger.recordOutput("PeriodicTime/hoodMs", (endTimeUs - startTimeUs) / 1000.0);
     }
@@ -488,7 +486,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
    * @param goalAngle The Angle to target
    */
   private void clampAndControlToAngle(Angle goalAngle) {
-    boolean shouldStowForShootingDisabled = !shootingEnabled && !DriverStation.isTest();
+    boolean shouldStowForShootingDisabled = !shootingEnabled && !DriverStationBackend.isUtility();
     boolean shouldStow =
         shouldStowForShootingDisabled || shouldStowForTrench || shouldStowForIntakeOrDefense;
 
@@ -581,7 +579,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
    */
   public void targetExitPitch(Angle goalPitch) {
     this.requestedAction = HoodAction.TargetExitPitch;
-    this.goalExitPitch.mut_replace(goalPitch);
+    this.goalExitPitch = goalPitch;
   }
 
   /**
@@ -596,6 +594,6 @@ public class HoodSubsystem extends MonitoredSubsystem {
    */
   public void targetAngleRadians(double angleRadians) {
     this.requestedAction = HoodAction.TargetAngle;
-    this.goalAngle.mut_replace(angleRadians, Radians);
+    this.goalAngle = new Angle(angleRadians, 1.0, Radians);
   }
 }

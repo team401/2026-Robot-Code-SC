@@ -1,10 +1,10 @@
 package frc.robot.subsystems.hopper;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
+import static org.wpilib.units.Units.Amps;
+import static org.wpilib.units.Units.RPM;
+import static org.wpilib.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.Seconds;
+import static org.wpilib.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.math.Lazy;
@@ -18,13 +18,13 @@ import coppercore.wpilib_interface.tuning.TuningModeHelper.ControlMode;
 import coppercore.wpilib_interface.tuning.TuningModeHelper.MotorTuningMode;
 import coppercore.wpilib_interface.tuning.TuningModeHelper.TunableMotor;
 import coppercore.wpilib_interface.tuning.TuningModeHelper.TunableMotorConfiguration;
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
-import edu.wpi.first.units.AngularVelocityUnit;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
+import org.wpilib.math.filter.Debouncer;
+import org.wpilib.math.filter.Debouncer.DebounceType;
+import org.wpilib.units.AngularVelocityUnit;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.units.measure.Voltage;
+import org.wpilib.system.RobotController;
+import org.wpilib.system.Timer;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.hopper.HopperState.DejamState;
 import frc.robot.subsystems.hopper.HopperState.IdleState;
@@ -116,7 +116,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
-    long startTimeUs = RobotController.getFPGATime();
+    long startTimeUs = RobotController.getTime();
 
     motor.updateInputs(inputs);
 
@@ -126,7 +126,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
     Logger.recordOutput("Hopper/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
 
-    long endTimeUs = RobotController.getFPGATime();
+    long endTimeUs = RobotController.getTime();
     if (JsonConstants.featureFlags.logPeriodicTiming) {
       Logger.recordOutput("PeriodicTime/hopperMs", (endTimeUs - startTimeUs) / 1000.0);
     }

@@ -1,11 +1,11 @@
 package frc.robot.subsystems.turret;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.Degrees;
+import static org.wpilib.units.Units.RadiansPerSecond;
 
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
-import edu.wpi.first.units.AngularVelocityUnit;
+import org.wpilib.units.AngularVelocityUnit;
 import frc.robot.constants.JsonConstants;
 
 /**
