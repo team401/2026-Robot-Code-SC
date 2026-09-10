@@ -5,6 +5,8 @@ import static org.wpilib.units.Units.RPM;
 import static org.wpilib.units.Units.RotationsPerSecondPerSecond;
 import static org.wpilib.units.Units.Second;
 
+import com.therekrab.autopilot.APConstraints;
+import com.therekrab.autopilot.APConstraintsTypeAdapter;
 import com.therekrab.autopilot.APTarget;
 import coppercore.parameter_tools.json.JSONHandler;
 import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
@@ -74,6 +76,7 @@ public class JsonConstants {
 
     Controllers.applyControllerConfigToBuilder(jsonSyncSettings);
 
+    jsonSyncSettings.addJsonTypeAdapter(APConstraints.class, new APConstraintsTypeAdapter());
     jsonSyncSettings.addJsonTypeAdapterFactory(new OptionalTypeAdapterFactory());
 
     var pathProvider = environmentHandler.getEnvironmentPathProvider();
