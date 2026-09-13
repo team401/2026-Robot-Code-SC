@@ -93,7 +93,6 @@ public class TransferRollerConstants {
                 simTransferRollerMOI.in(KilogramSquareMeters),
                 1 / transferRollerReduction),
             DCMotor.getKrakenX44Foc(1),
-            0.0,
             0.0));
   }
 }

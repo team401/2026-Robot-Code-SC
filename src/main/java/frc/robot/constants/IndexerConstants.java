@@ -95,7 +95,6 @@ public class IndexerConstants {
                 simIndexerMOI.in(KilogramSquareMeters),
                 1 / indexerReduction),
             DCMotor.getKrakenX44Foc(1),
-            0.0,
             0.0));
   }
 }

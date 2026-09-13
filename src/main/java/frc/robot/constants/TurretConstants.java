@@ -168,8 +168,7 @@ public class TurretConstants {
                 simTurretMOI.in(KilogramSquareMeters),
                 1 / turretReduction),
             DCMotor.getKrakenX44Foc(1),
-            0.0,
-            0.0),
+            0.0, 0.0),
         minTurretAngle,
         maxTurretAngle);
   }

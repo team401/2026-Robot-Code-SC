@@ -214,6 +214,7 @@ public class ShooterConstants {
         new FlywheelSim(
             Models.flywheelFromPhysicalConstants(
                 DCMotor.getKrakenX60Foc(3), shooterMOI.in(KilogramSquareMeters), 1.0),
-            DCMotor.getKrakenX60Foc(3)));
+            DCMotor.getKrakenX60Foc(3),
+        0.0));
   }
 }

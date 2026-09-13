@@ -107,7 +107,6 @@ public class HopperConstants {
                 simHopperMOI.in(KilogramSquareMeters),
                 1 / hopperReduction),
             DCMotor.getKrakenX60(1),
-            hopperReduction,
             0.0));
   }
 }
