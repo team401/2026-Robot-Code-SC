@@ -10,12 +10,14 @@
       "name": "WPILib Desktop Debug",
       "request": "launch",
       "desktop": true,
+      "preLaunchTask": "Gradle Build",
     },
     {
       "type": "wpilib",
       "name": "WPILib roboRIO Debug",
       "request": "launch",
       "desktop": false,
+      "preLaunchTask": "Gradle Build",
     }
   ]
 }
