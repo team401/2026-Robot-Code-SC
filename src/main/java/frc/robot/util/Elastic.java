@@ -8,24 +8,25 @@
 
 package frc.robot.util;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.PubSubOption;
-import edu.wpi.first.networktables.StringPublisher;
-import edu.wpi.first.networktables.StringTopic;
+import io.avaje.jsonb.Json;
+import io.avaje.jsonb.JsonType;
+import io.avaje.jsonb.Jsonb;
+import org.wpilib.networktables.NetworkTableInstance;
+import org.wpilib.networktables.PubSubOption;
+import org.wpilib.networktables.StringPublisher;
+import org.wpilib.networktables.StringTopic;
 
 public final class Elastic {
   private static final StringTopic notificationTopic =
       NetworkTableInstance.getDefault().getStringTopic("/Elastic/RobotNotifications");
   private static final StringPublisher notificationPublisher =
-      notificationTopic.publish(PubSubOption.sendAll(true), PubSubOption.keepDuplicates(true));
+      notificationTopic.publish(new PubSubOption.SendAll(true), new PubSubOption.KeepDuplicates(true));
   private static final StringTopic selectedTabTopic =
       NetworkTableInstance.getDefault().getStringTopic("/Elastic/SelectedTab");
   private static final StringPublisher selectedTabPublisher =
-      selectedTabTopic.publish(PubSubOption.keepDuplicates(true));
-  private static final ObjectMapper objectMapper = new ObjectMapper();
+      selectedTabTopic.publish(new PubSubOption.KeepDuplicates(true));
+  private static final Jsonb jsonb = Jsonb.builder().serializeNulls(true).build();
+  private static final JsonType<Notification> notificationJson = jsonb.type(Notification.class);
 
   /**
    * Represents the possible levels of notifications for the Elastic dashboard. These levels are
@@ -48,8 +49,8 @@ public final class Elastic {
    */
   public static void sendNotification(Notification notification) {
     try {
-      notificationPublisher.set(objectMapper.writeValueAsString(notification));
-    } catch (JsonProcessingException e) {
+      notificationPublisher.set(notificationJson.toJson(notification));
+    } catch (RuntimeException e) {
       e.printStackTrace();
     }
   }
@@ -82,23 +83,19 @@ public final class Elastic {
    * properties such as level, title, description, display time, and dimensions to control how the
    * notification is displayed on the dashboard.
    */
+  @Json
   public static class Notification {
-    @JsonProperty("level")
     private NotificationLevel level;
 
-    @JsonProperty("title")
     private String title;
 
-    @JsonProperty("description")
     private String description;
 
-    @JsonProperty("displayTime")
+    @Json.Property("displayTime")
     private int displayTimeMillis;
 
-    @JsonProperty("width")
     private double width;
 
-    @JsonProperty("height")
     private double height;
 
     /**

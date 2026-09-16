@@ -7,27 +7,26 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
+import static org.wpilib.units.Units.Meters;
+import static org.wpilib.units.Units.Radians;
 
 import coppercore.metadata.CopperCoreMetadata;
 import coppercore.monitors.TotalCurrentCalculator;
 import coppercore.parameter_tools.json.JSONHandler;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Pose3d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Rotation3d;
+import org.wpilib.math.geometry.Transform3d;
+import org.wpilib.math.geometry.Translation3d;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.Distance;
+import org.wpilib.units.measure.Time;
+import org.wpilib.driverstation.GenericHID;
+import org.wpilib.system.RobotController;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.CommandScheduler;
+import org.wpilib.command2.sysid.SysIdRoutine;
 import frc.robot.Constants.Mode;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.commands.DriveCommands;
@@ -273,11 +272,11 @@ public class RobotContainer {
    */
   void processHTTPRequests() {
     if (JsonConstants.featureFlags.useTuningServer) {
-      long startTimeUs = RobotController.getFPGATime();
+      long startTimeUs = RobotController.getTime();
 
       jsonHandler.drainQueuedHttpActions();
 
-      long endTimeUs = RobotController.getFPGATime();
+      long endTimeUs = RobotController.getTime();
       if (JsonConstants.featureFlags.logPeriodicTiming) {
         Logger.recordOutput("PeriodicTime/httpRequestsMs", (endTimeUs - startTimeUs) / 1000.0);
       }
@@ -328,8 +327,8 @@ public class RobotContainer {
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+   * org.wpilib.driverstation.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * org.wpilib.command2.button.JoystickButton}.
    */
   private void configureButtonBindings() {
     coordinationLayer.initBindings();

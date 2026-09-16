@@ -5,7 +5,7 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.controllers.PathFollowingController;
-import edu.wpi.first.wpilibj2.command.Command;
+import org.wpilib.command2.Command;
 import frc.robot.subsystems.drive.DriveCoordinatorCommands;
 import java.io.IOException;
 import java.util.function.BooleanSupplier;
@@ -49,8 +49,8 @@ public class FollowPathPlannerPath extends DriveAutoAction {
         new FollowPathCommand(
             path,
             drive::getPose,
-            drive::getChassisSpeeds,
-            (speeds, feedforwards) -> drive.setGoalSpeeds(speeds, false),
+            drive::getChassisVelocities,
+            (speeds, feedforwards) -> drive.setGoalVelocities(speeds, false),
             controller,
             config,
             FALSE));

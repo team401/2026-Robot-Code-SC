@@ -1,16 +1,16 @@
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
+import static org.wpilib.units.Units.MetersPerSecond;
 
 import com.therekrab.autopilot.APConstraints;
 import com.therekrab.autopilot.APProfile;
 import com.therekrab.autopilot.APTarget;
 import com.therekrab.autopilot.Autopilot;
 import com.therekrab.autopilot.Autopilot.APResult;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj2.command.Command;
+import org.wpilib.math.controller.PIDController;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.command2.Command;
 import frc.robot.constants.JsonConstants;
 import java.security.InvalidParameterException;
 import org.littletonrobotics.junction.Logger;
@@ -66,7 +66,7 @@ public class DriveCoordinatorCommands extends Command {
 
     @Override
     public void execute() {
-      var chassisSpeeds = driveCoordinator.drive.getChassisSpeeds();
+      var chassisSpeeds = driveCoordinator.drive.getChassisVelocities();
       var currentPose = driveCoordinator.drive.getPose();
 
       APResult output = autoPilot.calculate(currentPose, chassisSpeeds, target);
@@ -79,7 +79,7 @@ public class DriveCoordinatorCommands extends Command {
           headingController.calculate(currentHeading.getRadians(), desiredHeading.getRadians());
 
       var speeds =
-          new ChassisSpeeds(
+          new ChassisVelocities(
               output.vx().in(MetersPerSecond), output.vy().in(MetersPerSecond), omega);
 
       driveCoordinator.drive.setGoalSpeedsBlueOrigins(speeds);

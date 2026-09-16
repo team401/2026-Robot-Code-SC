@@ -1,7 +1,7 @@
 package frc.robot.constants;
 
 import coppercore.wpilib_interface.alliance_util.AllianceUtil;
-import edu.wpi.first.math.geometry.Translation2d;
+import org.wpilib.math.geometry.Translation2d;
 
 /**
  * The FieldLocations class provides static methods to get field locations for the current alliance.

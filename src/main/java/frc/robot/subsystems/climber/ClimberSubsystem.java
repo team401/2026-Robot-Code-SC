@@ -1,14 +1,14 @@
 package frc.robot.subsystems.climber;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
+import static org.wpilib.units.Units.Amps;
+import static org.wpilib.units.Units.Degrees;
+import static org.wpilib.units.Units.Meters;
+import static org.wpilib.units.Units.Radians;
+import static org.wpilib.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.RotationsPerSecond;
+import static org.wpilib.units.Units.RotationsPerSecondPerSecond;
+import static org.wpilib.units.Units.Seconds;
+import static org.wpilib.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.math.Lazy;
@@ -20,14 +20,13 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import coppercore.wpilib_interface.tuning.TestModeManager;
-import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.MutVoltage;
-import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
+import org.wpilib.units.VoltageUnit;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.units.measure.Distance;
+import org.wpilib.units.measure.Voltage;
+import org.wpilib.driverstation.internal.DriverStationBackend;
+import org.wpilib.system.RobotController;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForMovementState;
 import frc.robot.subsystems.climber.ClimberState.HomingWaitForStoppingState;
@@ -83,10 +82,10 @@ public class ClimberSubsystem extends MonitoredSubsystem {
   Lazy<LoggedTunableNumber> climberTuningAmps;
   Lazy<LoggedTunableNumber> climberTuningVolts;
 
-  LoggedTunableMeasure<MutVoltage, Voltage, VoltageUnit> hangVoltage =
+  LoggedTunableMeasure<Voltage, VoltageUnit> hangVoltage =
       new LoggedTunableMeasure<>(
           "ClimberTunables/hangVoltage",
-          JsonConstants.climberConstants.hangClimbVoltage.mutableCopy(),
+          JsonConstants.climberConstants.hangClimbVoltage,
           Volts,
           true);
 
@@ -108,7 +107,7 @@ public class ClimberSubsystem extends MonitoredSubsystem {
 
     waitForHomingState
         .when(
-            climber -> DriverStation.isEnabled() && climber.isClimberTestMode(),
+            climber -> DriverStationBackend.isEnabled() && climber.isClimberTestMode(),
             "In climber test mode (must home first)")
         .transitionTo(homingWaitForMovementState);
     waitForHomingState.whenFinished("Should home").transitionTo(homingWaitForMovementState);
@@ -208,7 +207,7 @@ public class ClimberSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
-    long startTimeUs = RobotController.getFPGATime();
+    long startTimeUs = RobotController.getTime();
 
     motor.updateInputs(inputs);
     Logger.processInputs("Climber/inputs", inputs);
@@ -218,7 +217,7 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     Logger.recordOutput("Climber/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
 
-    long endTimeUs = RobotController.getFPGATime();
+    long endTimeUs = RobotController.getTime();
     if (JsonConstants.featureFlags.logPeriodicTiming) {
       Logger.recordOutput("PeriodicTime/climberMs", (endTimeUs - startTimeUs) / 1000.0);
     }

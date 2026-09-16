@@ -2,7 +2,7 @@ package frc.robot.auto;
 
 import coppercore.parameter_tools.json.annotations.JsonSubtype;
 import coppercore.parameter_tools.json.annotations.JsonType;
-import edu.wpi.first.wpilibj2.command.Command;
+import org.wpilib.command2.Command;
 import frc.robot.CoordinationLayer;
 import frc.robot.auto.coordinationLayer.ClimbHangAction;
 import frc.robot.auto.coordinationLayer.ClimbSearchAction;

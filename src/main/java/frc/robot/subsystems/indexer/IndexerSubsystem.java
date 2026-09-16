@@ -1,8 +1,8 @@
 package frc.robot.subsystems.indexer;
 
-import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
+import static org.wpilib.units.Units.RPM;
+import static org.wpilib.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.Seconds;
 
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.math.Lazy;
@@ -16,10 +16,10 @@ import coppercore.wpilib_interface.tuning.TuningModeHelper.ControlMode;
 import coppercore.wpilib_interface.tuning.TuningModeHelper.MotorTuningMode;
 import coppercore.wpilib_interface.tuning.TuningModeHelper.TunableMotor;
 import coppercore.wpilib_interface.tuning.TuningModeHelper.TunableMotorConfiguration;
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.RobotController;
+import org.wpilib.math.filter.Debouncer;
+import org.wpilib.math.filter.Debouncer.DebounceType;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.system.RobotController;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.indexer.IndexerState.IdleState;
 import frc.robot.subsystems.indexer.IndexerState.ShootingState;
@@ -132,7 +132,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
-    long startTimeUs = RobotController.getFPGATime();
+    long startTimeUs = RobotController.getTime();
 
     motor.updateInputs(inputs);
     Logger.processInputs("Indexer/inputs", inputs);
@@ -142,7 +142,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
     Logger.recordOutput("Indexer/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
 
-    long endTimeUs = RobotController.getFPGATime();
+    long endTimeUs = RobotController.getTime();
     if (JsonConstants.featureFlags.logPeriodicTiming) {
       Logger.recordOutput("PeriodicTime/indexerMs", (endTimeUs - startTimeUs) / 1000.0);
     }

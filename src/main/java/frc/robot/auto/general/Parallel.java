@@ -1,7 +1,7 @@
 package frc.robot.auto.general;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.ParallelCommandGroup;
 import frc.robot.auto.AutoAction;
 import java.util.List;
 import java.util.Objects;

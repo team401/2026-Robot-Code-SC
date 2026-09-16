@@ -11,15 +11,16 @@ import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.unmanaged.Unmanaged;
 import coppercore.monitors.TotalCurrentCalculator;
 import coppercore.wpilib_interface.subsystems.StatusSignalRefresher;
-import edu.wpi.first.hal.AllianceStationID;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.DriverStationSim;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.wpilib.hardware.hal.AllianceStationID;
+import org.wpilib.hardware.hal.RobotMode;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.driverstation.internal.DriverStationBackend;
+import org.wpilib.system.RobotController;
+import org.wpilib.simulation.DriverStationSim;
+import org.wpilib.smartdashboard.SmartDashboard;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.CommandScheduler;
 import frc.robot.constants.FeatureFlags;
 import frc.robot.constants.JsonConstants;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -88,7 +89,7 @@ public class Robot extends LoggedRobot {
       // This got our mean cycle time (admittedly while not seeing any tags) down to 15ms
     }
 
-    DriverStation.silenceJoystickConnectionWarning(true);
+    DriverStationBackend.silenceJoystickConnectionWarning(true);
 
     // Start AdvantageKit logger
     Logger.start();
@@ -110,9 +111,9 @@ public class Robot extends LoggedRobot {
     // Threads.setCurrentThreadPriority(true, 99);
 
     // Refresh all status signals, must be done before any IOs run updateInputs
-    long refresherStartTimeUs = RobotController.getFPGATime();
+    long refresherStartTimeUs = RobotController.getTime();
     StatusSignalRefresher.refreshAll();
-    long refresherEndTimeUs = RobotController.getFPGATime();
+    long refresherEndTimeUs = RobotController.getTime();
     if (JsonConstants.featureFlags.logPeriodicTiming) {
       Logger.recordOutput(
           "PeriodicTime/statusSignalRefresherMs",
@@ -189,14 +190,14 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once when test mode is enabled. */
   @Override
-  public void testInit() {
+  public void utilityInit() {
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
   }
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void utilityPeriodic() {}
 
   /** This function is called once when the robot is first started up. */
   @Override
@@ -227,13 +228,13 @@ public class Robot extends LoggedRobot {
       // Initialize the auto testing simulation, set up network table listeners, etc.
       allianceStationChooser =
           new LoggedDashboardChooser<>(AUTO_TESTING_PREFIX + "AllianceStation");
-      allianceStationChooser.addDefaultOption("Unknown", AllianceStationID.Unknown);
-      allianceStationChooser.addOption("Red 1", AllianceStationID.Red1);
-      allianceStationChooser.addOption("Red 2", AllianceStationID.Red2);
-      allianceStationChooser.addOption("Red 3", AllianceStationID.Red3);
-      allianceStationChooser.addOption("Blue 1", AllianceStationID.Blue1);
-      allianceStationChooser.addOption("Blue 2", AllianceStationID.Blue2);
-      allianceStationChooser.addOption("Blue 3", AllianceStationID.Blue3);
+      allianceStationChooser.addDefaultOption("Unknown", AllianceStationID.UNKNOWN);
+      allianceStationChooser.addOption("Red 1", AllianceStationID.RED_1);
+      allianceStationChooser.addOption("Red 2", AllianceStationID.RED_2);
+      allianceStationChooser.addOption("Red 3", AllianceStationID.RED_3);
+      allianceStationChooser.addOption("Blue 1", AllianceStationID.BLUE_1);
+      allianceStationChooser.addOption("Blue 2", AllianceStationID.BLUE_2);
+      allianceStationChooser.addOption("Blue 3", AllianceStationID.BLUE_3);
 
       SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "RobotEnabled", false);
       SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "AutoEnabled", false);
@@ -255,13 +256,13 @@ public class Robot extends LoggedRobot {
       DriverStationSim.notifyNewData();
 
       if (SmartDashboard.getBoolean(AUTO_TESTING_PREFIX + "StartAuto", false)) {
-        DriverStationSim.setAutonomous(true);
+        DriverStationSim.setRobotMode(RobotMode.AUTONOMOUS);
         DriverStationSim.setEnabled(true);
         SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "StartAuto", false);
       }
 
       if (SmartDashboard.getBoolean(AUTO_TESTING_PREFIX + "StopAuto", false)) {
-        DriverStationSim.setAutonomous(false);
+        DriverStationSim.setRobotMode(RobotMode.TELEOPERATED);
         DriverStationSim.setEnabled(false);
         SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "StopAuto", false);
       }
@@ -279,8 +280,8 @@ public class Robot extends LoggedRobot {
 
       DriverStationSim.notifyNewData();
 
-      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "RobotEnabled", DriverStation.isEnabled());
-      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "AutoEnabled", DriverStation.isAutonomous());
+      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "RobotEnabled", DriverStationBackend.isEnabled());
+      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "AutoEnabled", DriverStationBackend.isAutonomous());
     }
   }
 }

@@ -3,13 +3,13 @@ package frc.robot.util.json;
 import coppercore.parameter_tools.json.helpers.JSONObject;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import coppercore.wpilib_interface.subsystems.motors.profile.MutableMotionProfileConfig;
-import edu.wpi.first.units.AngularAccelerationUnit;
-import edu.wpi.first.units.AngularVelocityUnit;
-import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.AngularAcceleration;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Per;
-import edu.wpi.first.units.measure.Velocity;
+import org.wpilib.units.AngularAccelerationUnit;
+import org.wpilib.units.AngularVelocityUnit;
+import org.wpilib.units.VoltageUnit;
+import org.wpilib.units.measure.AngularAcceleration;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.units.measure.Per;
+import org.wpilib.units.measure.Velocity;
 import java.lang.reflect.Constructor;
 
 public class JSONMotionProfileConfig extends JSONObject<MotionProfileConfig> {

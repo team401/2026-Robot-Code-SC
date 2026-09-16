@@ -1,9 +1,9 @@
 package frc.robot.constants;
 
-import static edu.wpi.first.units.Units.Meters;
+import static org.wpilib.units.Units.Meters;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.Distance;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.units.measure.Distance;
 
 /** ManualModeConstants contains constants that define how to shoot when vision isn't used */
 public class ManualModeConstants {

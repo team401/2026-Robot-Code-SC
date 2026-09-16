@@ -2,9 +2,9 @@ package frc.robot.util.json;
 
 import com.therekrab.autopilot.APTarget;
 import coppercore.parameter_tools.json.helpers.JSONObject;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.Distance;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.units.measure.Distance;
 import java.lang.reflect.Constructor;
 
 public class JSONAPTarget extends JSONObject<APTarget> {
