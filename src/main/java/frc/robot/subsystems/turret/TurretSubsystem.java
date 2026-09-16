@@ -473,8 +473,15 @@ public class TurretSubsystem extends MonitoredSubsystem {
   }
 
   private void controlToTurretCentricPositionRaw(Angle goalAngleTurretCentric) {
-    Logger.recordOutput("Turret/GoalAngle", goalAngleTurretCentric);
+    Logger.recordOutput("Turret/GoalAngle", goalAngleTurretCentric); //TODO: figure out where this is logged
     Angle clampedGoalAngle;
+    // With changes to normalize heading
+    // if goalAngelTurretCentric is negative, set it to 360 + goalAngleTurretCentric Degrees 
+
+    if (goalAngleTurretCentric.lt(Degrees.of(0))) {
+      goalAngleTurretCentric = Degrees.of(360).plus(goalAngleTurretCentric);
+    }
+
     /*
      * Clamp the angle by:
      * - If it is within 0 to max turret angle, return it
@@ -482,6 +489,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
      * - If it's greater than max angle but it's closer to max angle than to 360, return max angle
      * - If it's greater than max angle and is closer to 360 than to max angle, return 0 (same as 360)
      * */
+    
     if (goalAngleTurretCentric.lt(JsonConstants.turretConstants.turretDiscontinuityMidpoint)) {
       clampedGoalAngle =
           UnitUtils.clampMeasure(
@@ -509,13 +517,12 @@ public class TurretSubsystem extends MonitoredSubsystem {
    */
   protected void controlToGoalHeading() {
     Rotation2d robotRelativeHeading = goalTurretHeading.minus(dependencies.robotHeading);
-    // Rotation2d turretRelativeHeading =
-    //     AngleUtil.normalizeHeading(
-    //         robotRelativeHeading.plus(
-    //             new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle)));
+    Rotation2d turretRelativeHeading =
+            robotRelativeHeading.plus(
+                new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle));
 
-    // Angle adjustedGoalAngle = applyGoalAngleOffset(turretRelativeHeading.getMeasure());
-    // controlToTurretCentricPositionRaw(adjustedGoalAngle);
+    Angle adjustedGoalAngle = applyGoalAngleOffset(turretRelativeHeading.getMeasure());
+    controlToTurretCentricPositionRaw(adjustedGoalAngle);
   }
 
   private Angle getGoalAngleOffset(Angle goalAngleTurretCentric) {
