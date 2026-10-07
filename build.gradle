@@ -6,6 +6,18 @@ plugins {
     id "com.diffplug.spotless" version "8.1.0"
 }
 
+// Taken from https://github.com/Gold872/elastic_dashboard/issues/386
+// 
+// Workaround until GradleRIO includes annotation processor resources (e.g. META-INF/services)
+// on the VS Code classpath. Without it, avaje-jsonb @Json types fail under Simulate Robot Code.
+eclipse.classpath.file.whenMerged { cp ->
+    if (!cp.entries.any { it.kind == 'src' && it.path == 'build/classes/java/main' }) {
+        def res = new org.gradle.plugins.ide.eclipse.model.SourceFolder('build/classes/java/main', null)
+        res.includes = ['META-INF/**']
+        cp.entries.add(res)
+    }
+}
+
 java {
     sourceCompatibility = JavaVersion.VERSION_25
     targetCompatibility = JavaVersion.VERSION_25
