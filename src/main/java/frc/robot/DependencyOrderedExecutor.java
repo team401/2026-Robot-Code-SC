@@ -1,10 +1,10 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Seconds;
+import static org.wpilib.units.Units.Seconds;
 
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Watchdog;
+import org.wpilib.units.measure.Time;
+import org.wpilib.framework.TimedRobot;
+import org.wpilib.system.Watchdog;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +53,7 @@ public class DependencyOrderedExecutor {
    * period.
    */
   public DependencyOrderedExecutor() {
-    watchdog = new Watchdog(Seconds.of(TimedRobot.kDefaultPeriod), () -> {});
+    watchdog = new Watchdog(Seconds.of(TimedRobot.DEFAULT_PERIOD), () -> {});
   }
 
   /**

@@ -1,10 +1,10 @@
 package frc.robot.subsystems.hood;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.RadiansPerSecond;
 
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
-import edu.wpi.first.units.AngularVelocityUnit;
+import org.wpilib.units.AngularVelocityUnit;
 import frc.robot.constants.JsonConstants;
 
 /**
@@ -95,7 +95,7 @@ public abstract class HoodState extends State<HoodSubsystem> {
   public static class TestModeState extends HoodState {
     @Override
     public void periodic(StateMachine<HoodSubsystem> stateMachine, HoodSubsystem hood) {
-      hood.testPeriodic();
+      hood.utilityPeriodic();
     }
   }
 }

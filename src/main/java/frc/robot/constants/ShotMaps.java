@@ -1,22 +1,22 @@
 package frc.robot.constants;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Seconds;
+import static org.wpilib.units.Units.Degrees;
+import static org.wpilib.units.Units.Meters;
+import static org.wpilib.units.Units.RPM;
+import static org.wpilib.units.Units.Radians;
+import static org.wpilib.units.Units.Seconds;
 
 import coppercore.parameter_tools.LoggedTunableNumber;
 import coppercore.parameter_tools.json.annotations.AfterJsonLoad;
 import coppercore.parameter_tools.json.annotations.JSONExclude;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import org.wpilib.math.interpolation.InterpolatingDoubleTreeMap;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.units.measure.Distance;
+import org.wpilib.units.measure.Time;
+import org.wpilib.telemetry.Telemetry;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.InstantCommand;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.function.Function;
@@ -214,9 +214,9 @@ public class ShotMaps {
                 })
             .ignoringDisable(true);
 
-    SmartDashboard.putData("ShotMapTuning/addHubDataPoint", addPointToHubMapCommand);
-    SmartDashboard.putData("ShotMapTuning/addPassDataPoint", addPointToPassingMapCommand);
-    SmartDashboard.putData("ShotMapTuning/updateMechanismDelay", updateMechanismDelayCommand);
+    Telemetry.log("ShotMapTuning/addHubDataPoint", addPointToHubMapCommand);
+    Telemetry.log("ShotMapTuning/addPassDataPoint", addPointToPassingMapCommand);
+    Telemetry.log("ShotMapTuning/updateMechanismDelay", updateMechanismDelayCommand);
   }
 
   /** ShotMap for shooting at the hub */

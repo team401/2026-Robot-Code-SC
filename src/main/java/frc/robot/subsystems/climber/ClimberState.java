@@ -1,10 +1,10 @@
 package frc.robot.subsystems.climber;
 
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.RadiansPerSecond;
 
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
-import edu.wpi.first.units.AngularVelocityUnit;
+import org.wpilib.units.AngularVelocityUnit;
 import frc.robot.constants.JsonConstants;
 
 // Copilot autocomplete was used to help write this file
@@ -57,7 +57,7 @@ public abstract class ClimberState extends State<ClimberSubsystem> {
   public static class TestModeState extends ClimberState {
     @Override
     public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
-      climber.testPeriodic();
+      climber.utilityPeriodic();
     }
   }
 

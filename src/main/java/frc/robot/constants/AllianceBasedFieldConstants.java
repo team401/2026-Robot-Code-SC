@@ -2,10 +2,10 @@ package frc.robot.constants;
 
 import coppercore.wpilib_interface.alliance_util.AllianceUtil;
 import coppercore.wpilib_interface.alliance_util.AllianceUtil.AllianceBasedValue;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.math.geometry.Translation3d;
+import org.wpilib.driverstation.Alliance;
 
 /**
  * The AllianceBasedFieldConstants class provides methods for getting relevant field locations from
@@ -36,8 +36,8 @@ public class AllianceBasedFieldConstants {
     Alliance alliance = AllianceUtil.getAlliance();
 
     return switch (alliance) {
-      case Red -> robotPose.getX() > FieldConstants.LinesVertical.oppAllianceZone();
-      case Blue -> robotPose.getX() < FieldConstants.LinesVertical.allianceZone();
+      case RED -> robotPose.getX() > FieldConstants.LinesVertical.oppAllianceZone();
+      case BLUE -> robotPose.getX() < FieldConstants.LinesVertical.allianceZone();
     };
   }
 
@@ -52,8 +52,8 @@ public class AllianceBasedFieldConstants {
     Alliance alliance = AllianceUtil.getAlliance();
 
     return switch (alliance) {
-      case Red -> robotPose.getX() < FieldConstants.LinesVertical.allianceZone();
-      case Blue -> robotPose.getX() > FieldConstants.LinesVertical.oppAllianceZone();
+      case RED -> robotPose.getX() < FieldConstants.LinesVertical.allianceZone();
+      case BLUE -> robotPose.getX() > FieldConstants.LinesVertical.oppAllianceZone();
     };
   }
 }

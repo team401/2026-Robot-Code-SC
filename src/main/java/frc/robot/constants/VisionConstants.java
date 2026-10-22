@@ -1,12 +1,12 @@
 package frc.robot.constants;
 
-import static edu.wpi.first.units.Units.Seconds;
+import static org.wpilib.units.Units.Seconds;
 
 import coppercore.vision.VisionGainConstants;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Time;
+import org.wpilib.math.geometry.Rotation3d;
+import org.wpilib.math.geometry.Transform3d;
+import org.wpilib.math.util.Units;
+import org.wpilib.units.measure.Time;
 
 public class VisionConstants {
   // Placeholder values for camera configs

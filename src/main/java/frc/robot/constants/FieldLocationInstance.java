@@ -1,6 +1,6 @@
 package frc.robot.constants;
 
-import edu.wpi.first.math.geometry.Translation2d;
+import org.wpilib.math.geometry.Translation2d;
 
 /**
  * Contains "field locations" (e.g. passing targets, locations for autonomous or semi-autonomous

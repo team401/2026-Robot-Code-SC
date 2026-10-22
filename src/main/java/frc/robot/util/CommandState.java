@@ -2,7 +2,7 @@ package frc.robot.util;
 
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
-import edu.wpi.first.wpilibj2.command.Command;
+import org.wpilib.command2.Command;
 
 // Copilot used to help write the docs for this class
 

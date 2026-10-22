@@ -3,11 +3,11 @@ package frc.robot.subsystems.drive;
 import coppercore.wpilib_interface.DriveWithJoysticks;
 import coppercore.wpilib_interface.tuning.LoggedTunablePIDGains;
 import coppercore.wpilib_interface.tuning.TestModeManager;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.system.RobotController;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.InstantCommand;
+import org.wpilib.command2.SubsystemBase;
 import frc.robot.constants.JsonConstants;
 import org.littletonrobotics.junction.Logger;
 
@@ -174,10 +174,10 @@ public class DriveCoordinator extends SubsystemBase {
 
   @Override
   public void periodic() {
-    long startTimeUs = RobotController.getFPGATime();
+    long startTimeUs = RobotController.getTime();
 
     if (testModeManager.isInTestMode()) {
-      testPeriodic();
+      utilityPeriodic();
     }
 
     // Maybe decide if we want to check if it is finished before or after executing.
@@ -196,13 +196,13 @@ public class DriveCoordinator extends SubsystemBase {
         "DriveCoordinator/CurrentCommand",
         activeCommand == null ? "None" : activeCommand.getName());
 
-    long endTimeUs = RobotController.getFPGATime();
+    long endTimeUs = RobotController.getTime();
     if (JsonConstants.featureFlags.logPeriodicTiming) {
       Logger.recordOutput("PeriodicTime/driveCoordinatorMs", (endTimeUs - startTimeUs) / 1000.0);
     }
   }
 
-  public void testPeriodic() {
+  public void utilityPeriodic() {
     switch (testModeManager.getTestMode()) {
       case DriveGainsTuning:
         steerGains.ifChanged(hashCode(), drive::setSteerGains);
