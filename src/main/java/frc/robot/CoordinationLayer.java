@@ -26,11 +26,13 @@ import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Pose3d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.geometry.Rotation3d;
+import org.wpilib.math.geometry.Transform3d;
 import org.wpilib.math.geometry.Translation2d;
 import org.wpilib.math.geometry.Translation3d;
 import org.wpilib.math.kinematics.ChassisVelocities;
 import org.wpilib.math.numbers.N3;
 import org.wpilib.math.util.Units;
+import org.wpilib.units.measure.Angle;
 import org.wpilib.units.measure.Time;
 import org.wpilib.util.Alert;
 import org.wpilib.driverstation.internal.DriverStationBackend;
@@ -1231,6 +1233,29 @@ public class CoordinationLayer {
         new Pose2d(movementEnd, robotPose.getRotation()));
     EnhancedLine2d movementLine = new EnhancedLine2d(movementStart, movementEnd);
 
+    Translation2d turretLocation = new Pose3d(robotPose)
+            .plus(JsonConstants.robotInfo.robotToShooter)
+            .getTranslation()
+            .toTranslation2d();
+    
+    //Angle turretAngle = turret.map(TurretSubsystem::getTurretAngleRobotRelative).orElse(Radians.of(1));
+    
+
+    double turretAngle = turret.map(turret -> turret.getGoalTurretHeading().getRadians()).orElse(0.0);
+
+    Rotation3d turretRotation = new Rotation3d(new Rotation2d(turretAngle));
+    
+    Transform3d turretFuturePosition = new Transform3d(new Translation3d(3.0, turretRotation), new Rotation3d());
+
+    Translation2d turretDirection = new Pose3d(robotPose)
+            .plus(JsonConstants.robotInfo.robotToShooter.plus(turretFuturePosition))
+            .getTranslation()
+            .toTranslation2d();
+
+    Logger.recordOutput(
+        "CoordinationLayer/TurretTrajectory",
+        new Translation2d[] {turretLocation, turretDirection});
+
     for (var trench : trenches) {
       if (movementLine.intersects(trench)) {
         return true;
@@ -1373,7 +1398,7 @@ public class CoordinationLayer {
     turret.ifPresent(
         turret -> {
           turret.targetGoalHeading(shot.yaw());
-        });
+            });
 
     hood.ifPresent(
         hood -> {
