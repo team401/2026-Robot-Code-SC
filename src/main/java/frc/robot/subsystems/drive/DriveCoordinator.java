@@ -177,7 +177,7 @@ public class DriveCoordinator extends SubsystemBase {
     long startTimeUs = RobotController.getTime();
 
     if (testModeManager.isInTestMode()) {
-      testPeriodic();
+      utilityPeriodic();
     }
 
     // Maybe decide if we want to check if it is finished before or after executing.
@@ -202,7 +202,7 @@ public class DriveCoordinator extends SubsystemBase {
     }
   }
 
-  public void testPeriodic() {
+  public void utilityPeriodic() {
     switch (testModeManager.getTestMode()) {
       case DriveGainsTuning:
         steerGains.ifChanged(hashCode(), drive::setSteerGains);

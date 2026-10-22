@@ -238,7 +238,7 @@ class ShotCalculations {
    * motion using time of flight.
    *
    * @param robotPose The current robot position
-   * @param robotRelativeChassisSpeeds The ROBOT CENTRIC chassis speeds of the robot
+   * @param robotRelativeChassisVelocities The ROBOT CENTRIC chassis speeds of the robot
    * @param fieldRelativeShooterVelocity the velocity of the shooter, field relative, as a
    *     Translation2d.
    * @param target the ShotTarget to aim for
@@ -246,7 +246,7 @@ class ShotCalculations {
    */
   public static MapBasedShotInfo calculateShotFromMap(
       Pose2d robotPose,
-      ChassisVelocities robotRelativeChassisSpeeds,
+      ChassisVelocities robotRelativeChassisVelocities,
       Translation2d fieldRelativeShooterVelocity,
       ShotTarget target) {
     Translation2d targetPosition = target.getTranslation();
@@ -256,9 +256,9 @@ class ShotCalculations {
     Pose2d lookaheadPose =
         robotPose.plus(
             new Twist2d(
-                robotRelativeChassisSpeeds.vx * lookaheadTimeSeconds,
-                robotRelativeChassisSpeeds.vy * lookaheadTimeSeconds,
-                robotRelativeChassisSpeeds.omega * lookaheadTimeSeconds).exp());
+                robotRelativeChassisVelocities.vx * lookaheadTimeSeconds,
+                robotRelativeChassisVelocities.vy * lookaheadTimeSeconds,
+                robotRelativeChassisVelocities.omega * lookaheadTimeSeconds).exp());
 
     Logger.recordOutput("ShotCalculations/MapBased/lookaheadPose", lookaheadPose);
 
@@ -406,7 +406,7 @@ class ShotCalculations {
 
     double hoodAngleRadians = map.hoodAngleRadiansByDistanceMeters().get(virtualDistanceXYMeters);
     double shooterRPM = map.rpmByDistanceMeters().get(virtualDistanceXYMeters);
-    Rotation2d yaw = virtualTarget.minus(shooterPose.getTranslation()).getAngle();
+    Rotation2d yaw = virtualTarget.minus(shooterPose.getTranslation()).getAngle().get();
 
     MapBasedShotInfo shot = new MapBasedShotInfo(hoodAngleRadians, shooterRPM, yaw, isShotReal);
     Logger.recordOutput("ShotCalculations/MapBased/Shot", shot);

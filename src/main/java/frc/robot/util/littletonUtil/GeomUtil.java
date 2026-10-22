@@ -124,7 +124,7 @@ public class GeomUtil {
   }
 
   /**
-   * Converts a ChassisSpeeds to a Twist2d by extracting two dimensions (Y and Z). chain
+   * Converts a ChassisVelocities to a Twist2d by extracting two dimensions (Y and Z). chain
    *
    * @param speeds The original translation
    * @return The resulting translation

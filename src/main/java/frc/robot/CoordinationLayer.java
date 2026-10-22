@@ -32,7 +32,7 @@ import org.wpilib.math.kinematics.ChassisVelocities;
 import org.wpilib.math.numbers.N3;
 import org.wpilib.math.util.Units;
 import org.wpilib.units.measure.Time;
-import org.wpilib.driverstation.Alert;
+import org.wpilib.util.Alert;
 import org.wpilib.driverstation.internal.DriverStationBackend;
 import org.wpilib.system.RobotController;
 import org.wpilib.event.EventLoop;
@@ -117,7 +117,7 @@ public class CoordinationLayer {
   private final Debouncer visionConnectedDebouncer =
       new Debouncer(
           JsonConstants.visionConstants.disconnectedDebounceTime.in(Seconds),
-          DebounceType.kFalling);
+          DebounceType.FALLING);
 
   /* Update connection debouncer time */
   void setVisionConnectionDebouncerTime(Time debounceTime) {
@@ -216,12 +216,15 @@ public class CoordinationLayer {
       new TestModeManager<>("CoordinationLayer", CoordinationTestMode.class);
 
   // Logging
-  private final Alert autonomyOverriddenAlert =
+  private static final Alert autonomyOverriddenAlert =
       new Alert(
+          "autonomy_level_forced_manual",
           "Autonomy level forced to manual due to disconnected coprocessor.", Alert.Level.MEDIUM);
-  private final Alert visionDisconnectedAlert =
-      new Alert("Coprocessor disconnected", Alert.Level.HIGH);
-  private final Alert lowBatteryAlert = new Alert("Battery voltage low", Alert.Level.MEDIUM);
+  private static final Alert visionDisconnectedAlert =
+      new Alert(
+        "disconnected_coprocessor",
+        "Coprocessor disconnected", Alert.Level.HIGH);
+  private static final Alert lowBatteryAlert = new Alert("low_battery", "Battery voltage low", Alert.Level.MEDIUM);
 
   // These constants will give a burst of two low battery voltage alerts, then one every second.
   private final TokenBucket lowBatteryAlertRateLimiter = new TokenBucket(200, 2);
@@ -1117,7 +1120,7 @@ public class CoordinationLayer {
           case PassRightNZ -> FieldLocations.rightNZPassingTarget();
         };
 
-    Rotation2d yaw = targetPose.minus(shooterPosition).getAngle();
+    Rotation2d yaw = targetPose.minus(shooterPosition).getAngle().get();
 
     Logger.recordOutput(
         "CoordinationLayer/distanceToTarget",

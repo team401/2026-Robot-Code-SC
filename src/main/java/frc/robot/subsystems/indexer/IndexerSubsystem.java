@@ -54,7 +54,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
 
   private final Debouncer isAtGoalVelocityDebouncer =
       new Debouncer(
-          JsonConstants.indexerConstants.atSetpointDebounceTime.in(Seconds), DebounceType.kFalling);
+          JsonConstants.indexerConstants.atSetpointDebounceTime.in(Seconds), DebounceType.FALLING);
 
   public IndexerSubsystem(MotorIO motor) {
     this.motor = motor;
@@ -148,7 +148,7 @@ public class IndexerSubsystem extends MonitoredSubsystem {
     }
   }
 
-  protected void testPeriodic() {
+  protected void utilityPeriodic() {
     tuningModeHelper.get().testPeriodic(testModeManager.getTestMode());
   }
 

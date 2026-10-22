@@ -7,8 +7,8 @@ import org.wpilib.driverstation.Alliance;
 import org.wpilib.driverstation.MatchType;
 import org.wpilib.driverstation.internal.DriverStationBackend;
 import org.wpilib.system.Timer;
+import org.wpilib.telemetry.Telemetry;
 import org.wpilib.simulation.DriverStationSim;
-import org.wpilib.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.constants.JsonConstants;
@@ -17,7 +17,7 @@ import java.util.Optional;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.AutoLogOutputManager;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkChooser;
 
 /**
  * The MatchState class handles tracking the state of the match and indicating when we can score vs.
@@ -30,7 +30,7 @@ public class MatchState {
   private MatchShift currentShift = MatchShift.Unknown;
   private boolean canScore = true;
 
-  private LoggedDashboardChooser<MatchType> matchTypeChooser;
+  private LoggedNetworkChooser<MatchType> matchTypeChooser;
 
   private final Timer preciseMatchTimer = new Timer();
 
@@ -42,7 +42,7 @@ public class MatchState {
   private boolean hasTeleopEnabled = false;
 
   /**
-   * @return {@code true} if we are in a match (FMS is attached or DriverStation.getMatchType()
+   * @return {@code true} if we are in a match (FMS is attached or MatchState.getMatchType()
    *     return Practice, Qualification, or Elimination), {@code false} otherwise
    */
   @AutoLogOutput(key = "MatchState/isInMatch")
@@ -50,9 +50,9 @@ public class MatchState {
     Logger.recordOutput("MatchState/matchType", DriverStationBackend.getMatchType());
     // Hardcode true for shop testing; getMatchType doesn't return a correct value here
     return true;
-    // || DriverStation.getMatchType() == DriverStation.MatchType.Practice
-    // || DriverStation.getMatchType() == DriverStation.MatchType.Qualification
-    // || DriverStation.getMatchType() == DriverStation.MatchType.Elimination;
+    // || MatchState.getMatchType() == MatchType.PRACTICE
+    // || MatchState.getMatchType() == MatchType.QUALIFICATION
+    // || MatchState.getMatchType() == MatchType.ELIMINATION;
   }
 
   public enum MatchShift {
@@ -123,17 +123,17 @@ public class MatchState {
   public MatchState() {
     AutoLogOutputManager.addObject(this);
 
-    SmartDashboard.putBoolean("matchState/manualRedOverride", false);
-    SmartDashboard.putBoolean("matchState/manualBlueOverride", false);
+    Telemetry.log("matchState/manualRedOverride", false);
+    Telemetry.log("matchState/manualBlueOverride", false);
 
     if (Constants.currentMode == Mode.SIM) {
-      matchTypeChooser = new LoggedDashboardChooser<>("MatchState/MatchType");
+      matchTypeChooser = new LoggedNetworkChooser<>("MatchState/MatchType");
 
       for (var matchType : MatchType.values()) {
         if (matchType == MatchType.NONE) {
-          matchTypeChooser.addDefaultOption(matchType.name(), matchType);
+          matchTypeChooser.addDefault(matchType.name(), matchType);
         } else {
-          matchTypeChooser.addOption(matchType.name(), matchType);
+          matchTypeChooser.add(matchType.name(), matchType);
         }
       }
     }

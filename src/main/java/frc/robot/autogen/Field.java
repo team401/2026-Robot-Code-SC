@@ -26,7 +26,7 @@ public final class Field {
 
   /** Initializes HAL and loads all robot constants for the active (config.json) environment. */
   public static void initialize() {
-    HAL.initialize(500, 0);
+    HAL.initialize();
     JsonConstants.loadConstants();
   }
 

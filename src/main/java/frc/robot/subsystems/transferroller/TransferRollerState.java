@@ -23,7 +23,7 @@ public abstract class TransferRollerState extends State<TransferRollerSubsystem>
     public void periodic(
         StateMachine<TransferRollerSubsystem> stateMachine,
         TransferRollerSubsystem transferRoller) {
-      transferRoller.testPeriodic();
+      transferRoller.utilityPeriodic();
     }
   }
 

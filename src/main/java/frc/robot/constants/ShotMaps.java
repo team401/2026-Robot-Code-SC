@@ -14,7 +14,7 @@ import org.wpilib.units.measure.Angle;
 import org.wpilib.units.measure.AngularVelocity;
 import org.wpilib.units.measure.Distance;
 import org.wpilib.units.measure.Time;
-import org.wpilib.smartdashboard.SmartDashboard;
+import org.wpilib.telemetry.Telemetry;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.InstantCommand;
 import java.util.Arrays;
@@ -214,9 +214,9 @@ public class ShotMaps {
                 })
             .ignoringDisable(true);
 
-    SmartDashboard.putData("ShotMapTuning/addHubDataPoint", addPointToHubMapCommand);
-    SmartDashboard.putData("ShotMapTuning/addPassDataPoint", addPointToPassingMapCommand);
-    SmartDashboard.putData("ShotMapTuning/updateMechanismDelay", updateMechanismDelayCommand);
+    Telemetry.log("ShotMapTuning/addHubDataPoint", addPointToHubMapCommand);
+    Telemetry.log("ShotMapTuning/addPassDataPoint", addPointToPassingMapCommand);
+    Telemetry.log("ShotMapTuning/updateMechanismDelay", updateMechanismDelayCommand);
   }
 
   /** ShotMap for shooting at the hub */

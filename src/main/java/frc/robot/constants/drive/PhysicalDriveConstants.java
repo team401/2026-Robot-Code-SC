@@ -227,7 +227,7 @@ public class PhysicalDriveConstants {
 
     DrivetrainConstants =
         new SwerveDrivetrainConstants()
-            .withCANBusName(JsonConstants.robotInfo.CANBus.getName())
+            .withNetwork(JsonConstants.robotInfo.CANBus)
             .withPigeon2Id(JsonConstants.canBusAssignment.kPigeonId)
             .withPigeon2Configs(pigeonConfigs);
     var constantCreator =

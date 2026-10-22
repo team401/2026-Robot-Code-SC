@@ -30,14 +30,13 @@ import org.wpilib.math.kinematics.SwerveModuleVelocity;
 import org.wpilib.math.numbers.N1;
 import org.wpilib.math.numbers.N3;
 import org.wpilib.units.measure.Current;
-import org.wpilib.driverstation.Alert;
-import org.wpilib.driverstation.DriverStation;
+import org.wpilib.util.Alert;
 import org.wpilib.driverstation.Alliance;
 import org.wpilib.driverstation.internal.DriverStationBackend;
 import org.wpilib.system.RobotController;
 import org.wpilib.system.Timer;
+import org.wpilib.telemetry.Telemetry;
 import org.wpilib.smartdashboard.Field2d;
-import org.wpilib.smartdashboard.SmartDashboard;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.InstantCommand;
 import org.wpilib.command2.SubsystemBase;
@@ -80,11 +79,11 @@ public class Drive extends SubsystemBase implements DriveTemplate {
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
   private final Module[] modules = new Module[4]; // FL, FR, BL, BR
   private final SysIdRoutine sysId;
-  private final Alert gyroDisconnectedAlert =
-      new Alert("Disconnected gyro, using kinematics as fallback.", Alert.Level.HIGH);
+  private static final Alert gyroDisconnectedAlert =
+      new Alert("disconnected_gyro", "Disconnected gyro, using kinematics as fallback.", Alert.Level.HIGH);
 
   private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(getModuleTranslations());
-  private Rotation2d rawGyroRotation = Rotation2d.kZero;
+  private Rotation2d rawGyroRotation = Rotation2d.ZERO;
   private Rotation2d lastGyroYaw = new Rotation2d();
   private SwerveModulePosition[] lastModulePositions = // For delta tracking
       new SwerveModulePosition[] {
@@ -94,7 +93,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
         new SwerveModulePosition()
       };
   private SwerveDrivePoseEstimator poseEstimator =
-      new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
+      new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.ZERO);
 
   private PoseEstimator maPoseEstimator = new PoseEstimator(VecBuilder.fill(0.003, 0.003, 0.0002));
 
@@ -133,7 +132,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
                 })
             .ignoringDisable(true);
 
-    SmartDashboard.putData("ResetToAutoCurrentLimits", resetToAutoLimitsCommand);
+    Telemetry.log("ResetToAutoCurrentLimits", resetToAutoLimitsCommand);
 
     // Usage reporting for swerve template
     HAL.reportUsage("RobotDrive", "Swerve_AdvantageKit");
@@ -145,12 +144,12 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     // AutoBuilder.configure(
     //     this::getPose,
     //     this::setPose,
-    //     this::getChassisSpeeds,
+    //     this::getChassisVelocities,
     //     this::runVelocity,
     //     new PPHolonomicDriveController(
     //         new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
     //     PP_CONFIG,
-    //     () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+    //     () -> MatchState.getAlliance().orElse(Alliance.BLUE) == Alliance.RED,
     //     this);
     // Pathfinding.setPathfinder(new LocalADStarAK());
     PathPlannerLogging.setLogActivePathCallback(
@@ -177,7 +176,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     // Since Drive is placed within an Optional, it can't be found in a recursive down from Robot
     AutoLogOutputManager.addObject(this);
 
-    SmartDashboard.putData("Field2d", field2d);
+    Telemetry.log("Field2d", field2d);
   }
 
   @Override
@@ -212,7 +211,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
     double[] sampleTimestamps =
         modules[0].getOdometryTimestamps(); // All signals are sampled together
     int sampleCount = sampleTimestamps.length;
-    Pose2d totalDeltaPose = Pose2d.kZero;
+    Pose2d totalDeltaPose = Pose2d.ZERO;
 
     for (int i = 0; i < sampleCount; i++) {
       // Read wheel positions and deltas from each module
@@ -263,7 +262,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
 
     // Apply update
     if (JsonConstants.featureFlags.useMAPoseEstimator) {
-      Twist2d totalTwist = totalDeltaPose.minus(Pose2d.kZero).log();
+      Twist2d totalTwist = totalDeltaPose.minus(Pose2d.ZERO).log();
       lastGyroYaw = gyroInputs.connected ? gyroInputs.yawPosition : rawGyroRotation;
       maPoseEstimator.addDriveData(Timer.getTimestamp(), totalTwist);
     }
@@ -293,7 +292,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
 
     // Log unoptimized setpoints and setpoint speeds
     Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
-    Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
+    Logger.recordOutput("SwerveChassisVelocities/Setpoints", discreteSpeeds);
 
     // Send setpoints to modules
     for (int i = 0; i < 4; i++) {
@@ -367,7 +366,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
   public void stopWithX() {
     Rotation2d[] headings = new Rotation2d[4];
     for (int i = 0; i < 4; i++) {
-      headings[i] = getModuleTranslations()[i].getAngle();
+      headings[i] = getModuleTranslations()[i].getAngle().get();
     }
     kinematics.resetHeadings(headings);
     stop();
@@ -532,7 +531,7 @@ public class Drive extends SubsystemBase implements DriveTemplate {
           // Red alliance is "flipped" (forward is -x)
           case RED -> Rotation2d.k180deg;
           // Blue alliance is +x forward
-          case BLUE -> Rotation2d.kZero;
+          case BLUE -> Rotation2d.ZERO;
         };
 
     setPose(new Pose2d(currentPose.getX(), currentPose.getY(), heading));

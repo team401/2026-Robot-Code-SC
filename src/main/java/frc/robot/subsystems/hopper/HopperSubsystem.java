@@ -49,7 +49,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
 
   private final Debouncer dejamRequiredDebouncer =
       new Debouncer(
-          JsonConstants.hopperConstants.dejamDebounceTime.in(Seconds), DebounceType.kRising);
+          JsonConstants.hopperConstants.dejamDebounceTime.in(Seconds), DebounceType.RISING);
   private final Timer dejamCooldownTimer = new Timer();
 
   Lazy<TuningModeHelper<TestMode>> tuningModeHelper;
@@ -132,7 +132,7 @@ public class HopperSubsystem extends MonitoredSubsystem {
     }
   }
 
-  protected void testPeriodic() {
+  protected void utilityPeriodic() {
     tuningModeHelper.get().testPeriodic(testModeManager.getTestMode());
   }
 

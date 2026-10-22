@@ -25,7 +25,6 @@ import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.math.interpolation.InterpolatingDoubleTreeMap;
 import org.wpilib.units.measure.Angle;
 import org.wpilib.units.measure.AngularVelocity;
-import org.wpilib.driverstation.DriverStation;
 import org.wpilib.driverstation.internal.DriverStationBackend;
 import org.wpilib.system.RobotController;
 import frc.robot.Constants;
@@ -74,7 +73,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
     private boolean isHomingSwitchPressed = false;
 
     /** The current field-centric heading of the robot, according to the drivetrain pose estimate */
-    private Rotation2d robotHeading = Rotation2d.kZero;
+    private Rotation2d robotHeading = Rotation2d.ZERO;
 
     /**
      * Whether or not the turret should currently stop moving to avoid tearing the intake net or to
@@ -141,7 +140,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
    * be updated by the coordinator layer via setGoalHeading.
    */
   @AutoLogOutput(key = "Turret/goalHeading")
-  private Rotation2d goalTurretHeading = Rotation2d.kZero;
+  private Rotation2d goalTurretHeading = Rotation2d.ZERO;
 
   private final InterpolatingDoubleTreeMap goalAngleOffsetMap = new InterpolatingDoubleTreeMap();
 
@@ -318,7 +317,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
    *
    * <p>This method MUST be called in periodic by the TestModeState
    */
-  protected void testPeriodic() {
+  protected void utilityPeriodic() {
     switch (testModeManager.getTestMode()) {
       case TurretClosedLoopTuning -> {
         LoggedTunableNumber.ifChanged(
