@@ -476,7 +476,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
     Logger.recordOutput("Turret/GoalAngle", goalAngleTurretCentric); 
     Angle clampedGoalAngle;
     // With changes to normalize heading
-    // if goalAngelTurretCentric is negative, set it to 360 + goalAngleTurretCentric Degrees 
+    // if goalAngleTurretCentric is negative, set it to 360 + goalAngleTurretCentric Degrees 
 
     if (goalAngleTurretCentric.lt(Degrees.of(0))) {
       goalAngleTurretCentric = Degrees.of(360).plus(goalAngleTurretCentric);
@@ -504,7 +504,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
     Logger.recordOutput("Turret/ClampedGoalAngle", clampedGoalAngle);
 
-    if (!brakeForIntake()) { //TODO: Here is the issue with the problem of the mechanism not moving comment this out in SIM although that doesn't work in SIM anyway
+    if (!brakeForIntake()) { //Comment this if statement out to let the mechanism move in SIM
       motor.controlToPositionExpoProfiled(clampedGoalAngle);
     }
   }
@@ -547,7 +547,6 @@ public class TurretSubsystem extends MonitoredSubsystem {
     return new Rotation2d(
             adjustedTurretAngle.minus(JsonConstants.turretConstants.headingToTurretAngle))
         .plus(dependencies.robotHeading);
-    //return new Rotation2d(); // TO BE REMOVED
   }
 
   /**
