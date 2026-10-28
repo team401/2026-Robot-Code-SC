@@ -539,7 +539,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
     return goalAngleTurretCentric.plus(getGoalAngleOffset(goalAngleTurretCentric));
   }
 
-  private Rotation2d getAdjustedGoalTurretHeadingFieldCentric() { //TODO: Untested
+  public Rotation2d getAdjustedGoalTurretHeadingFieldCentric() { 
     Rotation2d robotRelativeHeading = goalTurretHeading.minus(dependencies.robotHeading);
     Rotation2d turretRelativeHeading = robotRelativeHeading.plus(new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle));
 

@@ -1236,7 +1236,6 @@ public class CoordinationLayer {
             .toTranslation2d();    
 
     double turretAngle = turret.map(turret -> turret.getTurretCentricHeading().getRadians()).orElse(0.0);
-    //double turretAngle = turret.map(turret -> turret.getTurretAngleRobotRelative().in(Radians)).orElse(60.0);
 
     Rotation3d turretRotation = new Rotation3d(new Rotation2d(turretAngle));
     
@@ -1393,7 +1392,7 @@ public class CoordinationLayer {
     turret.ifPresent(
         turret -> {
           turret.targetGoalHeading(shot.yaw());
-            });
+        });
 
     hood.ifPresent(
         hood -> {
