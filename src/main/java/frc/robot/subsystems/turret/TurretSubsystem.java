@@ -504,7 +504,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
     Logger.recordOutput("Turret/ClampedGoalAngle", clampedGoalAngle);
 
-    if (!brakeForIntake()) { //TODO: Here is the issue with the problem of the mechanism not moving comment this out in SIM
+    if (!brakeForIntake()) { //TODO: Here is the issue with the problem of the mechanism not moving comment this out in SIM although that doesn't work in SIM anyway
       motor.controlToPositionExpoProfiled(clampedGoalAngle);
     }
   }
