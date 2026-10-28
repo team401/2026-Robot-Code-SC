@@ -473,7 +473,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
   }
 
   private void controlToTurretCentricPositionRaw(Angle goalAngleTurretCentric) {
-    Logger.recordOutput("Turret/GoalAngle", goalAngleTurretCentric); //TODO: figure out where this is logged
+    Logger.recordOutput("Turret/GoalAngle", goalAngleTurretCentric); 
     Angle clampedGoalAngle;
     // With changes to normalize heading
     // if goalAngelTurretCentric is negative, set it to 360 + goalAngleTurretCentric Degrees 
@@ -504,7 +504,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
     Logger.recordOutput("Turret/ClampedGoalAngle", clampedGoalAngle);
 
-    if (!brakeForIntake()) {
+    if (!brakeForIntake()) { //TODO: Here is the issue with the problem of the mechanism not moving comment this out in SIM
       motor.controlToPositionExpoProfiled(clampedGoalAngle);
     }
   }
@@ -539,18 +539,15 @@ public class TurretSubsystem extends MonitoredSubsystem {
     return goalAngleTurretCentric.plus(getGoalAngleOffset(goalAngleTurretCentric));
   }
 
-  private Rotation2d getAdjustedGoalTurretHeadingFieldCentric() {
+  private Rotation2d getAdjustedGoalTurretHeadingFieldCentric() { //TODO: Untested
     Rotation2d robotRelativeHeading = goalTurretHeading.minus(dependencies.robotHeading);
-    // Rotation2d turretRelativeHeading =
-    //     AngleUtil.normalizeHeading(
-    //         robotRelativeHeading.plus(
-    //             new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle)));
+    Rotation2d turretRelativeHeading = robotRelativeHeading.plus(new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle));
 
-    // Angle adjustedTurretAngle = applyGoalAngleOffset(turretRelativeHeading.getMeasure());
-    // return new Rotation2d(
-    //         adjustedTurretAngle.minus(JsonConstants.turretConstants.headingToTurretAngle))
-    //     .plus(dependencies.robotHeading);
-    return new Rotation2d(); // TO BE REMOVED
+    Angle adjustedTurretAngle = applyGoalAngleOffset(turretRelativeHeading.getMeasure());
+    return new Rotation2d(
+            adjustedTurretAngle.minus(JsonConstants.turretConstants.headingToTurretAngle))
+        .plus(dependencies.robotHeading);
+    //return new Rotation2d(); // TO BE REMOVED
   }
 
   /**
@@ -606,6 +603,10 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   public Rotation2d getGoalTurretHeading() {
     return goalTurretHeading;
+  }
+
+  public Rotation2d getTurretCentricHeading() {
+    return goalTurretHeading.minus(dependencies.robotHeading); 
   }
 
   /**

@@ -1233,12 +1233,10 @@ public class CoordinationLayer {
     Translation2d turretLocation = new Pose3d(robotPose)
             .plus(JsonConstants.robotInfo.robotToShooter)
             .getTranslation()
-            .toTranslation2d();
-    
-    //Angle turretAngle = turret.map(TurretSubsystem::getTurretAngleRobotRelative).orElse(Radians.of(1));
-    
+            .toTranslation2d();    
 
-    double turretAngle = turret.map(turret -> turret.getGoalTurretHeading().getRadians()).orElse(0.0);
+    double turretAngle = turret.map(turret -> turret.getTurretCentricHeading().getRadians()).orElse(0.0);
+    //double turretAngle = turret.map(turret -> turret.getTurretAngleRobotRelative().in(Radians)).orElse(60.0);
 
     Rotation3d turretRotation = new Rotation3d(new Rotation2d(turretAngle));
     
