@@ -1233,6 +1233,8 @@ public class CoordinationLayer {
         new Pose2d(movementEnd, robotPose.getRotation()));
     EnhancedLine2d movementLine = new EnhancedLine2d(movementStart, movementEnd);
 
+    // Log turret trajectory for debugging. 
+
     Translation2d turretLocation = new Pose3d(robotPose)
             .plus(JsonConstants.robotInfo.robotToShooter)
             .getTranslation()

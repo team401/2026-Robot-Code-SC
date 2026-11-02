@@ -503,7 +503,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
     Logger.recordOutput("Turret/ClampedGoalAngle", clampedGoalAngle);
 
-    if (!brakeForIntake()) { //Comment this if statement out to let the mechanism move in SIM
+    if (!brakeForIntake()) //Comment this if statement out to let the mechanism move in SIM, leave what is inside the if statement.
+    { 
       motor.controlToPositionExpoProfiled(clampedGoalAngle);
     }
   }
@@ -538,7 +539,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
     return goalAngleTurretCentric.plus(getGoalAngleOffset(goalAngleTurretCentric));
   }
 
-  public Rotation2d getAdjustedGoalTurretHeadingFieldCentric() { 
+  private Rotation2d getAdjustedGoalTurretHeadingFieldCentric() {
     Rotation2d robotRelativeHeading = goalTurretHeading.minus(dependencies.robotHeading);
     Rotation2d turretRelativeHeading = robotRelativeHeading.plus(new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle));
 
@@ -599,10 +600,16 @@ public class TurretSubsystem extends MonitoredSubsystem {
     this.goalTurretHeading = goalHeading;
   }
 
+  /**
+   * @return A Rotation2d containing the field-centric goal heading of the turret.
+   */
   public Rotation2d getGoalTurretHeading() {
     return goalTurretHeading;
   }
 
+  /**
+   * @return A Rotation2d containing the turret-centric goal heading of the turret.
+   */
   public Rotation2d getTurretCentricHeading() {
     return goalTurretHeading.minus(dependencies.robotHeading); 
   }
