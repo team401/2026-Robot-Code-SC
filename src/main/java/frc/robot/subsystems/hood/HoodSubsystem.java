@@ -23,7 +23,7 @@ import coppercore.wpilib_interface.tuning.TestModeManager;
 import org.wpilib.units.AngularVelocityUnit;
 import org.wpilib.units.measure.Angle;
 import org.wpilib.units.measure.AngularVelocity;
-import org.wpilib.driverstation.Alert;
+import org.wpilib.util.Alert;
 import org.wpilib.driverstation.internal.DriverStationBackend;
 import org.wpilib.system.RobotController;
 import frc.robot.CoordinationLayer.ShotMode;
@@ -295,7 +295,7 @@ public class HoodSubsystem extends MonitoredSubsystem {
    *
    * <p>This method must be called by the test mode state, as it does not run automatically
    */
-  protected void testPeriodic() {
+  protected void utilityPeriodic() {
     switch (testModeManager.getTestMode()) {
       case HoodClosedLoopTuning -> {
         LoggedTunableNumber.ifChanged(

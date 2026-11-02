@@ -40,7 +40,7 @@ public class TransferRollerSubsystem extends MonitoredSubsystem {
 
   private final Debouncer shouldDejamDebouncer =
       new Debouncer(
-          JsonConstants.transferRollerConstants.dejamTime.in(Seconds), DebounceType.kRising);
+          JsonConstants.transferRollerConstants.dejamTime.in(Seconds), DebounceType.RISING);
 
   // State machine and states
   private final StateMachine<TransferRollerSubsystem> stateMachine;
@@ -152,7 +152,7 @@ public class TransferRollerSubsystem extends MonitoredSubsystem {
     }
   }
 
-  protected void testPeriodic() {
+  protected void utilityPeriodic() {
     tuningModeHelper.get().testPeriodic(testModeManager.getTestMode());
   }
 

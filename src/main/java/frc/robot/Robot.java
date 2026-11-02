@@ -17,8 +17,11 @@ import org.wpilib.math.geometry.Pose2d;
 import org.wpilib.math.geometry.Rotation2d;
 import org.wpilib.driverstation.internal.DriverStationBackend;
 import org.wpilib.system.RobotController;
+import org.wpilib.telemetry.Telemetry;
+import org.wpilib.tunable.TunableBoolean;
+import org.wpilib.tunable.TunableDouble;
+import org.wpilib.tunable.Tunables;
 import org.wpilib.simulation.DriverStationSim;
-import org.wpilib.smartdashboard.SmartDashboard;
 import org.wpilib.command2.Command;
 import org.wpilib.command2.CommandScheduler;
 import frc.robot.constants.FeatureFlags;
@@ -26,7 +29,7 @@ import frc.robot.constants.JsonConstants;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkChooser;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
@@ -89,7 +92,7 @@ public class Robot extends LoggedRobot {
       // This got our mean cycle time (admittedly while not seeing any tags) down to 15ms
     }
 
-    DriverStationBackend.silenceJoystickConnectionWarning(true);
+    DriverStationBackend.silenceJoystickConnectionAlert(true);
 
     // Start AdvantageKit logger
     Logger.start();
@@ -220,32 +223,42 @@ public class Robot extends LoggedRobot {
     // from. It will then run the appropriate simulation based on the selected command and alliance
     // station.
 
-    LoggedDashboardChooser<AllianceStationID> allianceStationChooser;
+    LoggedNetworkChooser<AllianceStationID> allianceStationChooser;
     Robot robot;
+
+    private final TunableBoolean startAuto =
+      Tunables.addBoolean(AUTO_TESTING_PREFIX + "StartAuto", false);
+
+    private final TunableBoolean stopAuto =
+      Tunables.addBoolean(AUTO_TESTING_PREFIX + "StopAuto", false);
+
+    private final TunableBoolean setPos =
+      Tunables.addBoolean(AUTO_TESTING_PREFIX + "StopAuto", false);
+
+    private final TunableDouble setPosX =
+      Tunables.addDouble(AUTO_TESTING_PREFIX + "StopAuto", 0.0);
+
+    private final TunableDouble setPosY =
+      Tunables.addDouble(AUTO_TESTING_PREFIX + "StopAuto", 0.0);
+
+    private final TunableDouble setPosTheta =
+      Tunables.addDouble(AUTO_TESTING_PREFIX + "StopAuto", 0.0);
 
     public AutoTestingSimulation(Robot robot) {
       this.robot = robot;
       // Initialize the auto testing simulation, set up network table listeners, etc.
       allianceStationChooser =
-          new LoggedDashboardChooser<>(AUTO_TESTING_PREFIX + "AllianceStation");
-      allianceStationChooser.addDefaultOption("Unknown", AllianceStationID.UNKNOWN);
-      allianceStationChooser.addOption("Red 1", AllianceStationID.RED_1);
-      allianceStationChooser.addOption("Red 2", AllianceStationID.RED_2);
-      allianceStationChooser.addOption("Red 3", AllianceStationID.RED_3);
-      allianceStationChooser.addOption("Blue 1", AllianceStationID.BLUE_1);
-      allianceStationChooser.addOption("Blue 2", AllianceStationID.BLUE_2);
-      allianceStationChooser.addOption("Blue 3", AllianceStationID.BLUE_3);
+          new LoggedNetworkChooser<>(AUTO_TESTING_PREFIX + "AllianceStation");
+      allianceStationChooser.addDefault("Unknown", AllianceStationID.UNKNOWN);
+      allianceStationChooser.add("Red 1", AllianceStationID.RED_1);
+      allianceStationChooser.add("Red 2", AllianceStationID.RED_2);
+      allianceStationChooser.add("Red 3", AllianceStationID.RED_3);
+      allianceStationChooser.add("Blue 1", AllianceStationID.BLUE_1);
+      allianceStationChooser.add("Blue 2", AllianceStationID.BLUE_2);
+      allianceStationChooser.add("Blue 3", AllianceStationID.BLUE_3);
 
-      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "RobotEnabled", false);
-      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "AutoEnabled", false);
-
-      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "StartAuto", false);
-      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "StopAuto", false);
-
-      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "SetPos", false);
-      SmartDashboard.putNumber(AUTO_TESTING_PREFIX + "SetPosX", 0.0);
-      SmartDashboard.putNumber(AUTO_TESTING_PREFIX + "SetPosY", 0.0);
-      SmartDashboard.putNumber(AUTO_TESTING_PREFIX + "SetPosTheta", 0.0);
+      Telemetry.log(AUTO_TESTING_PREFIX + "RobotEnabled", false);
+      Telemetry.log(AUTO_TESTING_PREFIX + "AutoEnabled", false);
 
       DriverStationSim.setDsAttached(true);
     }
@@ -255,33 +268,33 @@ public class Robot extends LoggedRobot {
       DriverStationSim.setAllianceStationId(allianceStationChooser.get());
       DriverStationSim.notifyNewData();
 
-      if (SmartDashboard.getBoolean(AUTO_TESTING_PREFIX + "StartAuto", false)) {
+      if (startAuto.get()) {
         DriverStationSim.setRobotMode(RobotMode.AUTONOMOUS);
         DriverStationSim.setEnabled(true);
-        SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "StartAuto", false);
+        startAuto.set(false);
       }
 
-      if (SmartDashboard.getBoolean(AUTO_TESTING_PREFIX + "StopAuto", false)) {
+      if (stopAuto.get()) {
         DriverStationSim.setRobotMode(RobotMode.TELEOPERATED);
         DriverStationSim.setEnabled(false);
-        SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "StopAuto", false);
+        stopAuto.set(false);
       }
 
-      if (SmartDashboard.getBoolean(AUTO_TESTING_PREFIX + "SetPos", false)) {
-        double x = SmartDashboard.getNumber(AUTO_TESTING_PREFIX + "SetPosX", 0.0);
-        double y = SmartDashboard.getNumber(AUTO_TESTING_PREFIX + "SetPosY", 0.0);
-        double theta = SmartDashboard.getNumber(AUTO_TESTING_PREFIX + "SetPosTheta", 0.0);
+      if (setPos.get()) {
+        double x = setPosX.get();
+        double y = setPosY.get();
+        double theta = setPosTheta.get();
         robot
             .robotContainer
             .getDriveSubsystem()
             .setPose(new Pose2d(x, y, Rotation2d.fromDegrees(theta)));
-        SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "SetPos", false);
+        Telemetry.log(AUTO_TESTING_PREFIX + "SetPos", false);
       }
 
       DriverStationSim.notifyNewData();
 
-      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "RobotEnabled", DriverStationBackend.isEnabled());
-      SmartDashboard.putBoolean(AUTO_TESTING_PREFIX + "AutoEnabled", DriverStationBackend.isAutonomous());
+      Telemetry.log(AUTO_TESTING_PREFIX + "RobotEnabled", DriverStationBackend.isEnabled());
+      Telemetry.log(AUTO_TESTING_PREFIX + "AutoEnabled", DriverStationBackend.isAutonomous());
     }
   }
 }

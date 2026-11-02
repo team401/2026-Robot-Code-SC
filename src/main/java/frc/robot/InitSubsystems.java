@@ -1,7 +1,12 @@
 package frc.robot;
 
+import java.util.Optional;
+
+import org.wpilib.math.geometry.Transform3d;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
+
 import coppercore.vision.VisionIO;
 import coppercore.vision.VisionIOPhotonReal;
 import coppercore.vision.VisionIOPhotonSim;
@@ -13,8 +18,7 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIOReplay;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFX;
 import coppercore.wpilib_interface.subsystems.motors.talonfx.MotorIOTalonFXSim;
 import coppercore.wpilib_interface.subsystems.sim.CoppercoreSimAdapter;
-import org.wpilib.vision.apriltag.AprilTagFieldLayout;
-import org.wpilib.math.geometry.Transform3d;
+import org.wpilib.fields.Field;
 import frc.robot.constants.JsonConstants;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drive.Drive;
@@ -34,7 +38,6 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.ShooterSubsystem;
 import frc.robot.subsystems.transferroller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
-import java.util.Optional;
 
 /**
  * The InitSubsystems class contains static methods to instantiate each subsystem. It is separated
@@ -124,7 +127,7 @@ public class InitSubsystems {
   public static VisionLocalizer initVisionSubsystem(Drive drive) {
     var visionConstants = JsonConstants.visionConstants;
     var gainConstants = visionConstants.gainConstants;
-    AprilTagFieldLayout tagLayout = JsonConstants.aprilTagConstants.getTagLayout();
+    Field tagLayout = JsonConstants.aprilTagConstants.getTagLayout();
     CameraConfig[] cameraConfigs = null;
     switch (Constants.currentMode) {
       case REAL:
@@ -218,9 +221,9 @@ public class InitSubsystems {
             drive::addVisionMeasurement,
             tagLayout,
             gainConstants,
-            CameraConfig.fixed(replayIO, Transform3d.kZero),
-            CameraConfig.fixed(replayIO, Transform3d.kZero),
-            CameraConfig.fixed(replayIO, Transform3d.kZero));
+            CameraConfig.fixed(replayIO, Transform3d.ZERO),
+            CameraConfig.fixed(replayIO, Transform3d.ZERO),
+            CameraConfig.fixed(replayIO, Transform3d.ZERO));
     }
   }
 

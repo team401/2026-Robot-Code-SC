@@ -1,7 +1,8 @@
 package frc.robot.constants;
 
 import coppercore.parameter_tools.json.annotations.JSONExclude;
-import org.wpilib.vision.apriltag.AprilTagFieldLayout;
+import org.wpilib.fields.Field;
+import org.wpilib.fields.Fields;
 import org.wpilib.system.Filesystem;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -28,22 +29,12 @@ public class AprilTagConstants {
 
   public final FieldType fieldType = FieldType.WELDED;
 
-  @JSONExclude private AprilTagFieldLayout cachedLayout;
+  @JSONExclude private Field cachedLayout;
 
-  public AprilTagFieldLayout getTagLayout() {
+  public Field getTagLayout() {
     if (cachedLayout == null) {
-      try {
-        Path p =
-            Path.of(
-                Filesystem.getDeployDirectory().getPath(),
-                "apriltags",
-                fieldType.getJsonFilename());
-        cachedLayout = new AprilTagFieldLayout(p);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+      cachedLayout = Fields.FRC_2026_REBUILT_ANDY_MARK.loadField();
     }
-
     return cachedLayout;
   }
 }

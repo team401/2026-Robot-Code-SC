@@ -16,8 +16,7 @@ import org.wpilib.math.kinematics.SwerveModulePosition;
 import org.wpilib.math.kinematics.SwerveModuleVelocity;
 import org.wpilib.math.util.Units;
 import org.wpilib.units.measure.Current;
-import org.wpilib.annotation.NoDiscard;
-import org.wpilib.driverstation.Alert;
+import org.wpilib.util.Alert;
 import org.wpilib.system.RobotController;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
@@ -48,13 +47,16 @@ public class Module {
     this.constants = constants;
     driveDisconnectedAlert =
         new Alert(
+            "disconnected_drive_module_" + Integer.toString(index),
             "Disconnected drive motor on module " + Integer.toString(index) + ".",
             Alert.Level.HIGH);
     turnDisconnectedAlert =
         new Alert(
+            "disconnected_turn_module_" + Integer.toString(index),
             "Disconnected turn motor on module " + Integer.toString(index) + ".", Alert.Level.HIGH);
     turnEncoderDisconnectedAlert =
         new Alert(
+            "disconnected_turn_encoder_module_" + Integer.toString(index),
             "Disconnected turn encoder on module " + Integer.toString(index) + ".",
             Alert.Level.HIGH);
 
@@ -112,7 +114,7 @@ public class Module {
   /** Runs the module with the specified output while controlling to zero degrees. */
   public void runCharacterization(double output) {
     io.setDriveOpenLoop(output);
-    io.setTurnPosition(Rotation2d.kZero);
+    io.setTurnPosition(Rotation2d.ZERO);
   }
 
   /** Disables all outputs to motors. */

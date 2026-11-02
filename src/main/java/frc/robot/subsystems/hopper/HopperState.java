@@ -36,7 +36,7 @@ public abstract class HopperState extends State<HopperSubsystem> {
   public static class TestModeState extends HopperState {
     @Override
     public void periodic(StateMachine<HopperSubsystem> stateMachine, HopperSubsystem hopper) {
-      hopper.testPeriodic();
+      hopper.utilityPeriodic();
     }
   }
 }

@@ -103,7 +103,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
 
   private final Debouncer isAtGoalVelocityDebouncer =
       new Debouncer(
-          JsonConstants.shooterConstants.atSetpointDebounceTime.in(Seconds), DebounceType.kFalling);
+          JsonConstants.shooterConstants.atSetpointDebounceTime.in(Seconds), DebounceType.FALLING);
 
   // State variables for FF characterization
   private SimpleRegression ffRegression = new SimpleRegression();
@@ -234,7 +234,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
   }
 
   /** Runs when test mode is entered. Should be called by the test mode state. */
-  protected void testInit() {
+  protected void utilityInit() {
     switch (testModeManager.getTestMode()) {
       case ShooterFFCharacterization -> {
         this.ffRegression.clear();
@@ -247,7 +247,7 @@ public class ShooterSubsystem extends MonitoredSubsystem {
     }
   }
 
-  protected void testPeriodic() {
+  protected void utilityPeriodic() {
     switch (testModeManager.getTestMode()) {
       case ShooterClosedLoopTuning -> {
         slot0TunableGains

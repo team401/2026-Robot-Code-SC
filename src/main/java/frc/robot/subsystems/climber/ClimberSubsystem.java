@@ -223,7 +223,7 @@ public class ClimberSubsystem extends MonitoredSubsystem {
     }
   }
 
-  protected void testPeriodic() {
+  protected void utilityPeriodic() {
     switch (testModeManager.getTestMode()) {
       case ClimberClosedLoopTuning -> {
         LoggedTunableNumber.ifChanged(

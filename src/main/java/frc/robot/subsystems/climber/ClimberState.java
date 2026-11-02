@@ -57,7 +57,7 @@ public abstract class ClimberState extends State<ClimberSubsystem> {
   public static class TestModeState extends ClimberState {
     @Override
     public void periodic(StateMachine<ClimberSubsystem> stateMachine, ClimberSubsystem climber) {
-      climber.testPeriodic();
+      climber.utilityPeriodic();
     }
   }
 

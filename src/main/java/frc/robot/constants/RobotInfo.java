@@ -31,8 +31,6 @@ public class RobotInfo {
   // Private here, everyone else should use the CANBus object below
   private String canivoreBusName = "canivore";
 
-  private String logFilePath = "./logs/robot_log.hoot";
-
   public Mass robotMass = Kilograms.of(74.088);
   public MomentOfInertia robotMOI = KilogramSquareMeters.of(6.883);
   public Double wheelCof = 1.2;
@@ -91,7 +89,7 @@ public class RobotInfo {
 
   @AfterJsonLoad
   public void loadFieldsFromJSON() {
-    CANBus = new CANBus(canivoreBusName, logFilePath);
+    CANBus = new CANBus(canivoreBusName);
     ODOMETRY_FREQUENCY = CANBus.isNetworkFD() ? 250.0 : 100.0;
 
     batteryVoltageAlert =

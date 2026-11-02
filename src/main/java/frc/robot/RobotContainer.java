@@ -45,7 +45,7 @@ import frc.robot.subsystems.transferroller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -67,7 +67,7 @@ public class RobotContainer {
   private final CoordinationLayer coordinationLayer;
 
   // Dashboard inputs
-  private LoggedDashboardChooser<Command> autoChooser;
+  private LoggedNetworkChooser<Command> autoChooser;
 
   // JSON jsonHandler
   private JSONHandler jsonHandler;
@@ -161,7 +161,7 @@ public class RobotContainer {
     drive.ifPresentOrElse(
         this::createAutoChooser,
         () -> {
-          autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+          autoChooser = new LoggedNetworkChooser<>("Auto Choices");
         });
 
     if (drive.isPresent()) {
@@ -191,9 +191,9 @@ public class RobotContainer {
         coordinationLayer
             .getTurret()
             .map(TurretSubsystem::getGoalTurretHeading)
-            .orElse(Rotation2d.kZero)
+            .orElse(Rotation2d.ZERO)
             .minus(
-                coordinationLayer.getDrive().map(Drive::getPose).orElse(Pose2d.kZero).getRotation())
+                coordinationLayer.getDrive().map(Drive::getPose).orElse(Pose2d.ZERO).getRotation())
             .minus(Rotation2d.k180deg);
     Angle hoodAngle =
         coordinationLayer.getHood().map(HoodSubsystem::getCurrentExitPitch).orElse(Radians.zero());
@@ -290,37 +290,37 @@ public class RobotContainer {
    */
   private void createAutoChooser(Drive drive) {
     // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+    autoChooser = new LoggedNetworkChooser<>("Auto Choices");
 
     // Set up SysId routines
     if (drive != null) {
-      autoChooser.addOption(
+      autoChooser.add(
           "Drive Wheel Radius Characterization",
           DriveCoordinatorCommands.wrapCommand(
               driveCoordinator.get(), DriveCommands.wheelRadiusCharacterization(drive)));
-      autoChooser.addOption(
+      autoChooser.add(
           "Drive Simple FF Characterization",
           DriveCoordinatorCommands.wrapCommand(
               driveCoordinator.get(), DriveCommands.feedforwardCharacterization(drive)));
-      autoChooser.addOption(
+      autoChooser.add(
           "Drive SysId (Quasistatic Forward)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      autoChooser.addOption(
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.FORWARD));
+      autoChooser.add(
           "Drive SysId (Quasistatic Reverse)",
           DriveCoordinatorCommands.wrapCommand(
-              driveCoordinator.get(), drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)));
-      autoChooser.addOption(
+              driveCoordinator.get(), drive.sysIdQuasistatic(SysIdRoutine.Direction.REVERSE)));
+      autoChooser.add(
           "Drive SysId (Dynamic Forward)",
           DriveCoordinatorCommands.wrapCommand(
-              driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kForward)));
-      autoChooser.addOption(
+              driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.FORWARD)));
+      autoChooser.add(
           "Drive SysId (Dynamic Reverse)",
           DriveCoordinatorCommands.wrapCommand(
-              driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)));
+              driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.REVERSE)));
     }
 
     for (var auto : JsonConstants.autos.autoCommands.entrySet()) {
-      autoChooser.addOption(auto.getKey(), auto.getValue());
+      autoChooser.add(auto.getKey(), auto.getValue());
     }
   }
 

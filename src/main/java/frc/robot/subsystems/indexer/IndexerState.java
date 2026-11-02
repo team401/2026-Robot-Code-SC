@@ -19,7 +19,7 @@ public abstract class IndexerState extends State<IndexerSubsystem> {
   public static class TestModeState extends IndexerState {
     @Override
     public void periodic(StateMachine<IndexerSubsystem> stateMachine, IndexerSubsystem indexer) {
-      indexer.testPeriodic();
+      indexer.utilityPeriodic();
     }
   }
 

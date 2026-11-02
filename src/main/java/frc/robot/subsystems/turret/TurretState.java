@@ -136,7 +136,7 @@ public abstract class TurretState extends State<TurretSubsystem> {
   public static class TestModeState extends TurretState {
     @Override
     public void periodic(StateMachine<TurretSubsystem> stateMachine, TurretSubsystem turret) {
-      turret.testPeriodic();
+      turret.utilityPeriodic();
     }
   }
 }

@@ -5,6 +5,8 @@ import static org.wpilib.units.Units.RPM;
 import static org.wpilib.units.Units.RotationsPerSecondPerSecond;
 import static org.wpilib.units.Units.Second;
 
+import org.wpilib.driverstation.internal.DriverStationBackend;
+
 import com.therekrab.autopilot.APConstraints;
 import com.therekrab.autopilot.APConstraintsTypeAdapter;
 import com.therekrab.autopilot.APTarget;

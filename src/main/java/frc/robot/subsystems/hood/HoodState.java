@@ -95,7 +95,7 @@ public abstract class HoodState extends State<HoodSubsystem> {
   public static class TestModeState extends HoodState {
     @Override
     public void periodic(StateMachine<HoodSubsystem> stateMachine, HoodSubsystem hood) {
-      hood.testPeriodic();
+      hood.utilityPeriodic();
     }
   }
 }
