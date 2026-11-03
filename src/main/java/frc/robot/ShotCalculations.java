@@ -1,16 +1,15 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
+import static org.wpilib.units.Units.MetersPerSecond;
+import static org.wpilib.units.Units.Seconds;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.units.measure.LinearVelocity;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.math.geometry.Translation3d;
+import org.wpilib.math.geometry.Twist2d;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.units.measure.LinearVelocity;
 import frc.robot.constants.AllianceBasedFieldConstants;
 import frc.robot.constants.FieldLocations;
 import frc.robot.constants.JsonConstants;
@@ -34,14 +33,14 @@ class ShotCalculations {
     public Translation3d[] projectMotion(
         double shooterVelocityMps,
         Translation3d initialPosition,
-        ChassisSpeeds fieldRelativeRobotVel,
+        ChassisVelocities fieldRelativeRobotVel,
         double pointsPerMeter) {
       List<Translation3d> trajectory = new ArrayList<>();
 
       double vxy = shooterVelocityMps * Math.cos(pitchRadians());
 
-      double vx = vxy * Math.cos(yawRadians()) + fieldRelativeRobotVel.vxMetersPerSecond;
-      double vy = vxy * Math.sin(yawRadians()) + fieldRelativeRobotVel.vyMetersPerSecond;
+      double vx = vxy * Math.cos(yawRadians()) + fieldRelativeRobotVel.vx;
+      double vy = vxy * Math.sin(yawRadians()) + fieldRelativeRobotVel.vy;
       double vz = shooterVelocityMps * Math.sin(pitchRadians());
 
       Translation3d position = initialPosition;
@@ -130,7 +129,7 @@ class ShotCalculations {
   public static Optional<ShotInfo> calculateMovingShot(
       Translation3d shooterPosition,
       Translation3d goalPosition,
-      ChassisSpeeds robotVelocity,
+      ChassisVelocities robotVelocity,
       LinearVelocity shooterVelocity,
       ShotType shotType,
       Optional<ShotInfo> lastShot) {
@@ -157,7 +156,7 @@ class ShotCalculations {
       t = solution.timeSeconds;
 
       var vRobot =
-          new Translation3d(robotVelocity.vxMetersPerSecond, robotVelocity.vyMetersPerSecond, 0);
+          new Translation3d(robotVelocity.vx, robotVelocity.vy, 0);
 
       Translation3d effectiveGoal = goalPosition.minus(vRobot.times(t));
 
@@ -239,7 +238,7 @@ class ShotCalculations {
    * motion using time of flight.
    *
    * @param robotPose The current robot position
-   * @param robotRelativeChassisSpeeds The ROBOT CENTRIC chassis speeds of the robot
+   * @param robotRelativeChassisVelocities The ROBOT CENTRIC chassis speeds of the robot
    * @param fieldRelativeShooterVelocity the velocity of the shooter, field relative, as a
    *     Translation2d.
    * @param target the ShotTarget to aim for
@@ -247,7 +246,7 @@ class ShotCalculations {
    */
   public static MapBasedShotInfo calculateShotFromMap(
       Pose2d robotPose,
-      ChassisSpeeds robotRelativeChassisSpeeds,
+      ChassisVelocities robotRelativeChassisVelocities,
       Translation2d fieldRelativeShooterVelocity,
       ShotTarget target) {
     Translation2d targetPosition = target.getTranslation();
@@ -255,11 +254,11 @@ class ShotCalculations {
     double lookaheadTimeSeconds = JsonConstants.shotMaps.mechanismCompensationDelay.in(Seconds);
 
     Pose2d lookaheadPose =
-        robotPose.exp(
+        robotPose.plus(
             new Twist2d(
-                robotRelativeChassisSpeeds.vxMetersPerSecond * lookaheadTimeSeconds,
-                robotRelativeChassisSpeeds.vyMetersPerSecond * lookaheadTimeSeconds,
-                robotRelativeChassisSpeeds.omegaRadiansPerSecond * lookaheadTimeSeconds));
+                robotRelativeChassisVelocities.vx * lookaheadTimeSeconds,
+                robotRelativeChassisVelocities.vy * lookaheadTimeSeconds,
+                robotRelativeChassisVelocities.omega * lookaheadTimeSeconds).exp());
 
     Logger.recordOutput("ShotCalculations/MapBased/lookaheadPose", lookaheadPose);
 
@@ -290,7 +289,7 @@ class ShotCalculations {
     if (distanceXYMeters < minDistanceMeters || distanceXYMeters > maxDistanceMeters) {
       // When clamping, the shot is no longer real.
       isShotReal = false;
-      distanceXYMeters = MathUtil.clamp(distanceXYMeters, minDistanceMeters, maxDistanceMeters);
+      distanceXYMeters = Math.clamp(distanceXYMeters, minDistanceMeters, maxDistanceMeters);
     }
     Logger.recordOutput("ShotCalculations/MapBased/ClampedShotDistanceMeters", distanceXYMeters);
 
@@ -400,14 +399,14 @@ class ShotCalculations {
       // When clamping, the shot is no longer real.
       isShotReal = false;
       virtualDistanceXYMeters =
-          MathUtil.clamp(virtualDistanceXYMeters, minDistanceMeters, maxDistanceMeters);
+          Math.clamp(virtualDistanceXYMeters, minDistanceMeters, maxDistanceMeters);
     }
     Logger.recordOutput(
         "ShotCalculations/MapBased/ClampedVirtualDistanceMeters", virtualDistanceXYMeters);
 
     double hoodAngleRadians = map.hoodAngleRadiansByDistanceMeters().get(virtualDistanceXYMeters);
     double shooterRPM = map.rpmByDistanceMeters().get(virtualDistanceXYMeters);
-    Rotation2d yaw = virtualTarget.minus(shooterPose.getTranslation()).getAngle();
+    Rotation2d yaw = virtualTarget.minus(shooterPose.getTranslation()).getAngle().get();
 
     MapBasedShotInfo shot = new MapBasedShotInfo(hoodAngleRadians, shooterRPM, yaw, isShotReal);
     Logger.recordOutput("ShotCalculations/MapBased/Shot", shot);

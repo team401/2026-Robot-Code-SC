@@ -10,14 +10,14 @@
 
 package frc.robot.util.littletonUtil;
 
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.Timer;
+import org.wpilib.math.linalg.Matrix;
+import org.wpilib.math.util.Nat;
+import org.wpilib.math.linalg.VecBuilder;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Twist2d;
+import org.wpilib.math.numbers.N1;
+import org.wpilib.math.numbers.N3;
+import org.wpilib.system.Timer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -124,12 +124,12 @@ public class PoseEstimator {
   private static record PoseUpdate(Twist2d twist, ArrayList<VisionUpdate> visionUpdates) {
     public Pose2d apply(Pose2d lastPose, Matrix<N3, N1> q) {
       // Apply drive twist
-      var pose = lastPose.exp(twist);
+      var pose = lastPose.plus(twist.exp());
 
       // Apply vision updates
       for (VisionUpdate visionUpdate : visionUpdates) {
         // Calculate Kalman gains based on std devs
-        // (https://github.com/wpilibsuite/allwpilib/blob/main/wpimath/src/main/java/edu/wpi/first/math/estimator/)
+        // (https://github.com/wpilibsuite/allwpilib/blob/main/wpimath/src/main/java/org.wpilib.math/estimator/)
         Matrix<N3, N3> visionK = new Matrix<>(Nat.N3(), Nat.N3());
         var r = new double[3];
         for (int i = 0; i < 3; ++i) {
@@ -145,7 +145,7 @@ public class PoseEstimator {
         }
 
         // Calculate twist between current and vision pose
-        var visionTwist = pose.log(visionUpdate.pose());
+        var visionTwist = visionUpdate.pose().minus(pose).log();
 
         // Multiply by Kalman gain matrix
         var twistMatrix =
@@ -153,8 +153,8 @@ public class PoseEstimator {
 
         // Apply twist
         pose =
-            pose.exp(
-                new Twist2d(twistMatrix.get(0, 0), twistMatrix.get(1, 0), twistMatrix.get(2, 0)));
+            pose.plus(
+                new Twist2d(twistMatrix.get(0, 0), twistMatrix.get(1, 0), twistMatrix.get(2, 0)).exp());
       }
 
       return pose;

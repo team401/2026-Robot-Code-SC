@@ -22,13 +22,14 @@ import static frc.robot.autogen.Dsl.stowIntake;
 import static frc.robot.autogen.Dsl.waitSeconds;
 
 import com.therekrab.autopilot.APConstraints;
+import com.therekrab.autopilot.APConstraintsTypeAdapter;
 import com.therekrab.autopilot.APTarget;
 import coppercore.parameter_tools.json.JSONSync;
 import coppercore.parameter_tools.json.JSONSyncConfig;
 import coppercore.parameter_tools.json.JSONSyncConfigBuilder;
 import coppercore.parameter_tools.json.helpers.JSONConverter;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Rotation2d;
 import frc.robot.auto.Auto;
 import frc.robot.auto.AutoAction;
 import frc.robot.auto.Autos;
@@ -75,7 +76,10 @@ public final class GenerateAutos {
     Autos autos = build();
 
     JSONConverter.addConversion(APTarget.class, JSONAPTarget.class);
-    JSONSyncConfig config = new JSONSyncConfigBuilder().build();
+    JSONSyncConfig config =
+        new JSONSyncConfigBuilder()
+            .addJsonTypeAdapter(APConstraints.class, new APConstraintsTypeAdapter())
+            .build();
     JSONSync<Autos> sync = new JSONSync<>(autos, "", config);
     String json = sync.serialize();
 

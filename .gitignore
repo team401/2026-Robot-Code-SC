@@ -1,10 +1,6 @@
 # This gitignore has been specially created by the WPILib team.
 # If you remove items from this file, intellisense might break.
 
-### Python ###
-__pycache__/
-*.pyc
-
 ### C++ ###
 # Prerequisites
 *.d
@@ -174,8 +170,9 @@ out/
 
 # Simulation GUI and other tools window save file
 networktables.json
-simgui*.json
+simgui.json
 *-window.json
+simgui-ds.json
 
 # Simulation data log directory
 logs/
@@ -187,5 +184,5 @@ ctre_sim/
 /.cache
 compile_commands.json
 
-# Version file
-src/main/java/frc/robot/BuildConstants.java
+# Eclipse generated file for annotation processors
+.factorypath

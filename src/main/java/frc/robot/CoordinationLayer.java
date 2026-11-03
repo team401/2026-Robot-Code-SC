@@ -1,12 +1,12 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
+import static org.wpilib.units.Units.Degrees;
+import static org.wpilib.units.Units.Meters;
+import static org.wpilib.units.Units.MetersPerSecond;
+import static org.wpilib.units.Units.RPM;
+import static org.wpilib.units.Units.Radians;
+import static org.wpilib.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.Seconds;
 
 import coppercore.geometry.EnhancedLine2d;
 import coppercore.geometry.Rectangle;
@@ -19,27 +19,27 @@ import coppercore.wpilib_interface.alliance_util.AllianceUtil;
 import coppercore.wpilib_interface.controllers.Controller.Button;
 import coppercore.wpilib_interface.controllers.Controllers;
 import coppercore.wpilib_interface.tuning.TestModeManager;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.event.EventLoop;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import org.wpilib.math.linalg.Vector;
+import org.wpilib.math.filter.Debouncer;
+import org.wpilib.math.filter.Debouncer.DebounceType;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Pose3d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Rotation3d;
+import org.wpilib.math.geometry.Transform3d;
+import org.wpilib.math.geometry.Translation2d;
+import org.wpilib.math.geometry.Translation3d;
+import org.wpilib.math.kinematics.ChassisVelocities;
+import org.wpilib.math.numbers.N3;
+import org.wpilib.math.util.Units;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.Time;
+import org.wpilib.util.Alert;
+import org.wpilib.driverstation.internal.DriverStationBackend;
+import org.wpilib.system.RobotController;
+import org.wpilib.event.EventLoop;
+import org.wpilib.command2.InstantCommand;
+import org.wpilib.command2.button.Trigger;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.ShotCalculations.MapBasedShotInfo;
 import frc.robot.ShotCalculations.ShotInfo;
@@ -119,7 +119,7 @@ public class CoordinationLayer {
   private final Debouncer visionConnectedDebouncer =
       new Debouncer(
           JsonConstants.visionConstants.disconnectedDebounceTime.in(Seconds),
-          DebounceType.kFalling);
+          DebounceType.FALLING);
 
   /* Update connection debouncer time */
   void setVisionConnectionDebouncerTime(Time debounceTime) {
@@ -218,12 +218,15 @@ public class CoordinationLayer {
       new TestModeManager<>("CoordinationLayer", CoordinationTestMode.class);
 
   // Logging
-  private final Alert autonomyOverriddenAlert =
+  private static final Alert autonomyOverriddenAlert =
       new Alert(
-          "Autonomy level forced to manual due to disconnected coprocessor.", AlertType.kWarning);
-  private final Alert visionDisconnectedAlert =
-      new Alert("Coprocessor disconnected", AlertType.kError);
-  private final Alert lowBatteryAlert = new Alert("Battery voltage low", AlertType.kWarning);
+          "autonomy_level_forced_manual",
+          "Autonomy level forced to manual due to disconnected coprocessor.", Alert.Level.MEDIUM);
+  private static final Alert visionDisconnectedAlert =
+      new Alert(
+        "disconnected_coprocessor",
+        "Coprocessor disconnected", Alert.Level.HIGH);
+  private static final Alert lowBatteryAlert = new Alert("low_battery", "Battery voltage low", Alert.Level.MEDIUM);
 
   // These constants will give a burst of two low battery voltage alerts, then one every second.
   private final TokenBucket lowBatteryAlertRateLimiter = new TokenBucket(200, 2);
@@ -272,7 +275,7 @@ public class CoordinationLayer {
         .onTrue(
             new InstantCommand(
                 () -> {
-                  if (DriverStation.isTeleopEnabled()
+                  if (DriverStationBackend.isTeleopEnabled()
                       && effectiveAutonomyLevel == AutonomyLevel.Smart) {
                     shotMode = ShotMode.Hub;
                   }
@@ -280,7 +283,7 @@ public class CoordinationLayer {
         .onFalse(
             new InstantCommand(
                 () -> {
-                  if (DriverStation.isTeleopEnabled()
+                  if (DriverStationBackend.isTeleopEnabled()
                       && effectiveAutonomyLevel == AutonomyLevel.Smart) {
                     shotMode = ShotMode.Pass;
                   }
@@ -770,7 +773,7 @@ public class CoordinationLayer {
           turret.setRobotHeading(drive.getRotation());
         });
 
-    boolean shouldStopForShootingDisabled = !shootingEnabled && !DriverStation.isTest();
+    boolean shouldStopForShootingDisabled = !shootingEnabled && !DriverStationBackend.isUtility();
 
     // Piggyback off of the intake stopping logic to save power during defense
     turret.setShouldStopMoving(
@@ -813,7 +816,7 @@ public class CoordinationLayer {
    * methods run.
    */
   public void coordinateRobotActions() {
-    long startTimeUs = RobotController.getFPGATime();
+    long startTimeUs = RobotController.getTime();
 
     updateMatchState();
 
@@ -828,7 +831,7 @@ public class CoordinationLayer {
             if (isIntakeBoosted) {
               rollerSpeed = JsonConstants.intakeConstants.intakeTeleOpBoostedRollerSpeed;
             }
-            if (DriverStation.isAutonomous()) {
+            if (DriverStationBackend.isAutonomous()) {
               rollerSpeed = JsonConstants.intakeConstants.intakeAutoRollerSpeed;
             }
             intake.runRollers(rollerSpeed);
@@ -865,7 +868,7 @@ public class CoordinationLayer {
 
     autonomyOverriddenAlert.set(effectiveAutonomyLevel != autonomyLevel);
 
-    if (DriverStation.isDisabled()) {
+    if (DriverStationBackend.isDisabled()) {
       boolean lowVoltage =
           JsonConstants.robotInfo.batteryVoltageAlert.isBatteryBelowThreshold(
               RobotController.getBatteryVoltage());
@@ -873,7 +876,7 @@ public class CoordinationLayer {
       lowBatteryAlertRateLimiter.increment();
       if (lowVoltage
           && lowBatteryAlertRateLimiter.consumeTokens(TOKENS_PER_ALERT)
-          && !(DriverStation.isFMSAttached())) {
+          && !(DriverStationBackend.isFMSAttached())) {
         Elastic.sendNotification(
             new Elastic.Notification(
                 Elastic.NotificationLevel.WARNING,
@@ -900,7 +903,7 @@ public class CoordinationLayer {
         drive
                 .map(drive -> AllianceBasedFieldConstants.isInAllianceZone(drive.getPose()))
                 .orElse(true)
-            || !DriverStation.isAutonomous();
+            || !DriverStationBackend.isAutonomous();
 
     // canPassPastNet is true when either:
     // - We are not in passing mode (so net isn't a concern)
@@ -968,7 +971,7 @@ public class CoordinationLayer {
           transferRoller -> transferRoller.setTargetVelocity(RadiansPerSecond.zero()));
     }
 
-    long shotCalculationStartTimeUs = RobotController.getFPGATime();
+    long shotCalculationStartTimeUs = RobotController.getTime();
 
     // Select a passing target based on where we are
     if (drive
@@ -994,7 +997,7 @@ public class CoordinationLayer {
             case Manual -> drive.map(this::aimForManualShot).orElse(false);
           };
     }
-    long shotCalculationEndTimeUs = RobotController.getFPGATime();
+    long shotCalculationEndTimeUs = RobotController.getTime();
     if (JsonConstants.featureFlags.logPeriodicTiming) {
       Logger.recordOutput(
           "PeriodicTime/CoordinateRobotActions/shotCalculationMs",
@@ -1025,7 +1028,7 @@ public class CoordinationLayer {
       shooter.ifPresent(shooter -> shooter.stopShooter());
     }
 
-    long endTimeUs = RobotController.getFPGATime();
+    long endTimeUs = RobotController.getTime();
     if (JsonConstants.featureFlags.logPeriodicTiming) {
       Logger.recordOutput(
           "PeriodicTime/CoordinateRobotActions/totalMs", (endTimeUs - startTimeUs) / 1000.0);
@@ -1119,7 +1122,7 @@ public class CoordinationLayer {
           case PassRightNZ -> FieldLocations.rightNZPassingTarget();
         };
 
-    Rotation2d yaw = targetPose.minus(shooterPosition).getAngle();
+    Rotation2d yaw = targetPose.minus(shooterPosition).getAngle().get();
 
     Logger.recordOutput(
         "CoordinationLayer/distanceToTarget",
@@ -1180,10 +1183,10 @@ public class CoordinationLayer {
   private boolean shouldStowHoodBasedOnMovement(Drive drive, HoodSubsystem hood) {
     Pose2d robotPose = drive.getPose();
 
-    ChassisSpeeds robotRelativeSpeeds = drive.getChassisSpeeds();
+    ChassisVelocities robotRelativeSpeeds = drive.getChassisVelocities();
     Translation2d fieldCentricSpeeds =
         new Translation2d(
-                robotRelativeSpeeds.vxMetersPerSecond, robotRelativeSpeeds.vyMetersPerSecond)
+                robotRelativeSpeeds.vx, robotRelativeSpeeds.vy)
             .rotateBy(robotPose.getRotation());
 
     Translation2d shooterPose =
@@ -1229,6 +1232,28 @@ public class CoordinationLayer {
         "CoordinationLayer/HoodPredictedLocation",
         new Pose2d(movementEnd, robotPose.getRotation()));
     EnhancedLine2d movementLine = new EnhancedLine2d(movementStart, movementEnd);
+
+    // Log turret trajectory for debugging. 
+
+    Translation2d turretLocation = new Pose3d(robotPose)
+            .plus(JsonConstants.robotInfo.robotToShooter)
+            .getTranslation()
+            .toTranslation2d();    
+
+    double turretAngle = turret.map(turret -> turret.getTurretCentricHeading().getRadians()).orElse(0.0);
+
+    Rotation3d turretRotation = new Rotation3d(new Rotation2d(turretAngle));
+    
+    Transform3d turretFuturePosition = new Transform3d(new Translation3d(3.0, turretRotation), new Rotation3d());
+
+    Translation2d turretDirection = new Pose3d(robotPose)
+            .plus(JsonConstants.robotInfo.robotToShooter.plus(turretFuturePosition))
+            .getTranslation()
+            .toTranslation2d();
+
+    Logger.recordOutput(
+        "CoordinationLayer/TurretTrajectory",
+        new Translation2d[] {turretLocation, turretDirection});
 
     for (var trench : trenches) {
       if (movementLine.intersects(trench)) {
@@ -1320,10 +1345,10 @@ public class CoordinationLayer {
 
     ShotTarget target = getShotTargetFromPose(robotPose);
 
-    ChassisSpeeds robotRelativeSpeeds = driveInstance.getChassisSpeeds();
-    ChassisSpeeds fieldCentricSpeeds =
-        ChassisSpeeds.fromRobotRelativeSpeeds(
-            driveInstance.getChassisSpeeds(), robotPose.getRotation());
+    ChassisVelocities robotRelativeSpeeds = driveInstance.getChassisVelocities();
+    ChassisVelocities fieldCentricSpeeds =
+        driveInstance.getChassisVelocities().toFieldRelative(
+            robotPose.getRotation());
 
     /*
       Calculate the additional velocity caused by the rotation of the robot
@@ -1344,7 +1369,7 @@ public class CoordinationLayer {
 
       However, we can accomplish this math using Translation3d.cross instead:
     */
-    double omega = robotRelativeSpeeds.omegaRadiansPerSecond;
+    double omega = robotRelativeSpeeds.omega;
     Translation3d omega_vec = new Translation3d(0, 0, omega);
 
     Translation3d robotToShooterTranslation =
@@ -1362,8 +1387,8 @@ public class CoordinationLayer {
     // in the air in the same way as the shooter curves on the ground.
     Translation2d shooterVelocity =
         new Translation2d(
-            fieldCentricSpeeds.vxMetersPerSecond + vRot.get(0),
-            fieldCentricSpeeds.vyMetersPerSecond + vRot.get(1));
+            fieldCentricSpeeds.vx + vRot.get(0),
+            fieldCentricSpeeds.vy + vRot.get(1));
 
     MapBasedShotInfo shot =
         ShotCalculations.calculateShotFromMap(
@@ -1389,7 +1414,7 @@ public class CoordinationLayer {
 
   /** Update the MatchState each periodic loop */
   private void updateMatchState() {
-    if (DriverStation.isEnabled()) {
+    if (DriverStationBackend.isEnabled()) {
       matchState.enabledPeriodic(isWonAutoPressed.getAsBoolean(), isLostAutoPressed.getAsBoolean());
     } else {
       matchState.disabledPeriodic();
@@ -1433,7 +1458,7 @@ public class CoordinationLayer {
     return new ShotInfo(
         hood.map(hood -> hood.getCurrentExitPitch().in(Radians))
             .orElse(
-                MathUtil.clamp(
+                Math.clamp(
                     idealShot.pitchRadians(),
                     Math.toRadians(90 - JsonConstants.hoodConstants.maxHoodAngle.in(Degrees)),
                     Math.toRadians(90 - JsonConstants.hoodConstants.minHoodAngle.in(Degrees)))),

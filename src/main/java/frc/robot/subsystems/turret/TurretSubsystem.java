@@ -1,14 +1,14 @@
 package frc.robot.subsystems.turret;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Hertz;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
+import static org.wpilib.units.Units.Amps;
+import static org.wpilib.units.Units.Degrees;
+import static org.wpilib.units.Units.Hertz;
+import static org.wpilib.units.Units.Radians;
+import static org.wpilib.units.Units.RadiansPerSecond;
+import static org.wpilib.units.Units.RotationsPerSecond;
+import static org.wpilib.units.Units.RotationsPerSecondPerSecond;
+import static org.wpilib.units.Units.Seconds;
+import static org.wpilib.units.Units.Volts;
 
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.math.AngleUtil;
@@ -21,12 +21,12 @@ import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.subsystems.motors.profile.MotionProfileConfig;
 import coppercore.wpilib_interface.tuning.TestModeManager;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.interpolation.InterpolatingDoubleTreeMap;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.driverstation.internal.DriverStationBackend;
+import org.wpilib.system.RobotController;
 import frc.robot.Constants;
 import frc.robot.CoordinationLayer.ShotMode;
 import frc.robot.DependencyOrderedExecutor;
@@ -73,7 +73,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
     private boolean isHomingSwitchPressed = false;
 
     /** The current field-centric heading of the robot, according to the drivetrain pose estimate */
-    private Rotation2d robotHeading = Rotation2d.kZero;
+    private Rotation2d robotHeading = Rotation2d.ZERO;
 
     /**
      * Whether or not the turret should currently stop moving to avoid tearing the intake net or to
@@ -140,7 +140,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
    * be updated by the coordinator layer via setGoalHeading.
    */
   @AutoLogOutput(key = "Turret/goalHeading")
-  private Rotation2d goalTurretHeading = Rotation2d.kZero;
+  private Rotation2d goalTurretHeading = Rotation2d.ZERO;
 
   private final InterpolatingDoubleTreeMap goalAngleOffsetMap = new InterpolatingDoubleTreeMap();
 
@@ -164,7 +164,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
         .whenTimeout(Seconds.of(1.0))
         .transitionTo(homingWaitForButtonChirpState);
     homingWaitForButtonState
-        .when(turret -> DriverStation.isEnabled(), "Robot is enabled")
+        .when(turret -> DriverStationBackend.isEnabled(), "Robot is enabled")
         .transitionTo(homingWaitForMovementState);
 
     homingWaitForButtonChirpState.whenFinished().transitionTo(idleState);
@@ -172,7 +172,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
         .whenTimeout(Seconds.of(0.5))
         .transitionTo(homingWaitForButtonState);
     homingWaitForButtonChirpState
-        .when(turret -> DriverStation.isEnabled(), "Robot is enabled")
+        .when(turret -> DriverStationBackend.isEnabled(), "Robot is enabled")
         .transitionTo(homingWaitForMovementState);
 
     homingWaitForMovementState.whenFinished().transitionTo(homingWaitForStoppingState);
@@ -301,12 +301,12 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
-    long startTimeUs = RobotController.getFPGATime();
+    long startTimeUs = RobotController.getTime();
 
     Logger.recordOutput("Turret/State", stateMachine.getCurrentState().getName());
     stateMachine.periodic();
 
-    long endTimeUs = RobotController.getFPGATime();
+    long endTimeUs = RobotController.getTime();
     if (JsonConstants.featureFlags.logPeriodicTiming) {
       Logger.recordOutput("PeriodicTime/TurretMs", (endTimeUs - startTimeUs) / 1000.0);
     }
@@ -317,7 +317,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
    *
    * <p>This method MUST be called in periodic by the TestModeState
    */
-  protected void testPeriodic() {
+  protected void utilityPeriodic() {
     switch (testModeManager.getTestMode()) {
       case TurretClosedLoopTuning -> {
         LoggedTunableNumber.ifChanged(
@@ -472,8 +472,15 @@ public class TurretSubsystem extends MonitoredSubsystem {
   }
 
   private void controlToTurretCentricPositionRaw(Angle goalAngleTurretCentric) {
-    Logger.recordOutput("Turret/GoalAngle", goalAngleTurretCentric);
+    Logger.recordOutput("Turret/GoalAngle", goalAngleTurretCentric); 
     Angle clampedGoalAngle;
+    // With changes to normalize heading
+    // if goalAngleTurretCentric is negative, set it to 360 + goalAngleTurretCentric Degrees 
+
+    if (goalAngleTurretCentric.lt(Degrees.of(0))) {
+      goalAngleTurretCentric = Degrees.of(360).plus(goalAngleTurretCentric);
+    }
+
     /*
      * Clamp the angle by:
      * - If it is within 0 to max turret angle, return it
@@ -481,6 +488,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
      * - If it's greater than max angle but it's closer to max angle than to 360, return max angle
      * - If it's greater than max angle and is closer to 360 than to max angle, return 0 (same as 360)
      * */
+    
     if (goalAngleTurretCentric.lt(JsonConstants.turretConstants.turretDiscontinuityMidpoint)) {
       clampedGoalAngle =
           UnitUtils.clampMeasure(
@@ -495,7 +503,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
     Logger.recordOutput("Turret/ClampedGoalAngle", clampedGoalAngle);
 
-    if (!brakeForIntake()) {
+    if (!brakeForIntake()) //Comment this if statement out to let the mechanism move in SIM, leave what is inside the if statement.
+    { 
       motor.controlToPositionExpoProfiled(clampedGoalAngle);
     }
   }
@@ -509,9 +518,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
   protected void controlToGoalHeading() {
     Rotation2d robotRelativeHeading = goalTurretHeading.minus(dependencies.robotHeading);
     Rotation2d turretRelativeHeading =
-        AngleUtil.normalizeHeading(
             robotRelativeHeading.plus(
-                new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle)));
+                new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle));
 
     Angle adjustedGoalAngle = applyGoalAngleOffset(turretRelativeHeading.getMeasure());
     controlToTurretCentricPositionRaw(adjustedGoalAngle);
@@ -533,10 +541,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   private Rotation2d getAdjustedGoalTurretHeadingFieldCentric() {
     Rotation2d robotRelativeHeading = goalTurretHeading.minus(dependencies.robotHeading);
-    Rotation2d turretRelativeHeading =
-        AngleUtil.normalizeHeading(
-            robotRelativeHeading.plus(
-                new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle)));
+    Rotation2d turretRelativeHeading = robotRelativeHeading.plus(new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle));
 
     Angle adjustedTurretAngle = applyGoalAngleOffset(turretRelativeHeading.getMeasure());
     return new Rotation2d(
@@ -595,8 +600,18 @@ public class TurretSubsystem extends MonitoredSubsystem {
     this.goalTurretHeading = goalHeading;
   }
 
+  /**
+   * @return A Rotation2d containing the field-centric goal heading of the turret.
+   */
   public Rotation2d getGoalTurretHeading() {
     return goalTurretHeading;
+  }
+
+  /**
+   * @return A Rotation2d containing the turret-centric goal heading of the turret.
+   */
+  public Rotation2d getTurretCentricHeading() {
+    return goalTurretHeading.minus(dependencies.robotHeading); 
   }
 
   /**

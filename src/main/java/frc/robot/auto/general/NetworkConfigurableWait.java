@@ -1,13 +1,13 @@
 package frc.robot.auto.general;
 
-import static edu.wpi.first.units.Units.Seconds;
+import static org.wpilib.units.Units.Seconds;
 
 import coppercore.parameter_tools.json.annotations.AfterJsonLoad;
 import coppercore.parameter_tools.json.annotations.JSONExclude;
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import org.wpilib.units.measure.Time;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.DeferredCommand;
+import org.wpilib.command2.WaitCommand;
 import frc.robot.auto.AutoAction;
 import java.util.HashMap;
 import java.util.Map;

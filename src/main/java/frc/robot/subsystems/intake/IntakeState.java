@@ -1,8 +1,8 @@
 package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.Radians;
+import static org.wpilib.units.Units.Degrees;
+import static org.wpilib.units.Units.RPM;
+import static org.wpilib.units.Units.Radians;
 
 import coppercore.controls.state_machine.State;
 import coppercore.controls.state_machine.StateMachine;
@@ -12,7 +12,7 @@ import coppercore.wpilib_interface.tuning.TuningModeHelper.ControlMode;
 import coppercore.wpilib_interface.tuning.TuningModeHelper.MotorTuningMode;
 import coppercore.wpilib_interface.tuning.TuningModeHelper.TunableMotor;
 import coppercore.wpilib_interface.tuning.TuningModeHelper.TunableMotorConfiguration;
-import edu.wpi.first.units.Units;
+import org.wpilib.units.Units;
 import frc.robot.constants.JsonConstants;
 import java.util.function.Supplier;
 

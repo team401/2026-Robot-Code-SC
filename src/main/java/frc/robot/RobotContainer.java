@@ -7,27 +7,26 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
+import static org.wpilib.units.Units.Meters;
+import static org.wpilib.units.Units.Radians;
 
 import coppercore.metadata.CopperCoreMetadata;
 import coppercore.monitors.TotalCurrentCalculator;
 import coppercore.parameter_tools.json.JSONHandler;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.wpilib.math.geometry.Pose2d;
+import org.wpilib.math.geometry.Pose3d;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.math.geometry.Rotation3d;
+import org.wpilib.math.geometry.Transform3d;
+import org.wpilib.math.geometry.Translation3d;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.Distance;
+import org.wpilib.units.measure.Time;
+import org.wpilib.driverstation.GenericHID;
+import org.wpilib.system.RobotController;
+import org.wpilib.command2.Command;
+import org.wpilib.command2.CommandScheduler;
+import org.wpilib.command2.sysid.SysIdRoutine;
 import frc.robot.Constants.Mode;
 import frc.robot.DependencyOrderedExecutor.ActionKey;
 import frc.robot.commands.DriveCommands;
@@ -46,7 +45,7 @@ import frc.robot.subsystems.transferroller.TransferRollerSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkChooser;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -68,7 +67,7 @@ public class RobotContainer {
   private final CoordinationLayer coordinationLayer;
 
   // Dashboard inputs
-  private LoggedDashboardChooser<Command> autoChooser;
+  private LoggedNetworkChooser<Command> autoChooser;
 
   // JSON jsonHandler
   private JSONHandler jsonHandler;
@@ -162,7 +161,7 @@ public class RobotContainer {
     drive.ifPresentOrElse(
         this::createAutoChooser,
         () -> {
-          autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+          autoChooser = new LoggedNetworkChooser<>("Auto Choices");
         });
 
     if (drive.isPresent()) {
@@ -192,9 +191,9 @@ public class RobotContainer {
         coordinationLayer
             .getTurret()
             .map(TurretSubsystem::getGoalTurretHeading)
-            .orElse(Rotation2d.kZero)
+            .orElse(Rotation2d.ZERO)
             .minus(
-                coordinationLayer.getDrive().map(Drive::getPose).orElse(Pose2d.kZero).getRotation())
+                coordinationLayer.getDrive().map(Drive::getPose).orElse(Pose2d.ZERO).getRotation())
             .minus(Rotation2d.k180deg);
     Angle hoodAngle =
         coordinationLayer.getHood().map(HoodSubsystem::getCurrentExitPitch).orElse(Radians.zero());
@@ -273,11 +272,11 @@ public class RobotContainer {
    */
   void processHTTPRequests() {
     if (JsonConstants.featureFlags.useTuningServer) {
-      long startTimeUs = RobotController.getFPGATime();
+      long startTimeUs = RobotController.getTime();
 
       jsonHandler.drainQueuedHttpActions();
 
-      long endTimeUs = RobotController.getFPGATime();
+      long endTimeUs = RobotController.getTime();
       if (JsonConstants.featureFlags.logPeriodicTiming) {
         Logger.recordOutput("PeriodicTime/httpRequestsMs", (endTimeUs - startTimeUs) / 1000.0);
       }
@@ -291,45 +290,45 @@ public class RobotContainer {
    */
   private void createAutoChooser(Drive drive) {
     // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+    autoChooser = new LoggedNetworkChooser<>("Auto Choices");
 
     // Set up SysId routines
     if (drive != null) {
-      autoChooser.addOption(
+      autoChooser.add(
           "Drive Wheel Radius Characterization",
           DriveCoordinatorCommands.wrapCommand(
               driveCoordinator.get(), DriveCommands.wheelRadiusCharacterization(drive)));
-      autoChooser.addOption(
+      autoChooser.add(
           "Drive Simple FF Characterization",
           DriveCoordinatorCommands.wrapCommand(
               driveCoordinator.get(), DriveCommands.feedforwardCharacterization(drive)));
-      autoChooser.addOption(
+      autoChooser.add(
           "Drive SysId (Quasistatic Forward)",
-          drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-      autoChooser.addOption(
+          drive.sysIdQuasistatic(SysIdRoutine.Direction.FORWARD));
+      autoChooser.add(
           "Drive SysId (Quasistatic Reverse)",
           DriveCoordinatorCommands.wrapCommand(
-              driveCoordinator.get(), drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)));
-      autoChooser.addOption(
+              driveCoordinator.get(), drive.sysIdQuasistatic(SysIdRoutine.Direction.REVERSE)));
+      autoChooser.add(
           "Drive SysId (Dynamic Forward)",
           DriveCoordinatorCommands.wrapCommand(
-              driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kForward)));
-      autoChooser.addOption(
+              driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.FORWARD)));
+      autoChooser.add(
           "Drive SysId (Dynamic Reverse)",
           DriveCoordinatorCommands.wrapCommand(
-              driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.kReverse)));
+              driveCoordinator.get(), drive.sysIdDynamic(SysIdRoutine.Direction.REVERSE)));
     }
 
     for (var auto : JsonConstants.autos.autoCommands.entrySet()) {
-      autoChooser.addOption(auto.getKey(), auto.getValue());
+      autoChooser.add(auto.getKey(), auto.getValue());
     }
   }
 
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+   * org.wpilib.driverstation.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * org.wpilib.command2.button.JoystickButton}.
    */
   private void configureButtonBindings() {
     coordinationLayer.initBindings();

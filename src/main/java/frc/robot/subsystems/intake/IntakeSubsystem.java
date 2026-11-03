@@ -1,9 +1,9 @@
 package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Hertz;
-import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.Radians;
+import static org.wpilib.units.Units.Degrees;
+import static org.wpilib.units.Units.Hertz;
+import static org.wpilib.units.Units.RPM;
+import static org.wpilib.units.Units.Radians;
 
 import coppercore.controls.state_machine.StateMachine;
 import coppercore.monitors.TotalCurrentCalculator;
@@ -12,12 +12,12 @@ import coppercore.wpilib_interface.MonitoredSubsystem;
 import coppercore.wpilib_interface.subsystems.motors.MotorIO;
 import coppercore.wpilib_interface.subsystems.motors.MotorInputsAutoLogged;
 import coppercore.wpilib_interface.tuning.TestModeManager;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
+import org.wpilib.math.util.Units;
+import org.wpilib.units.measure.Angle;
+import org.wpilib.units.measure.AngularVelocity;
+import org.wpilib.units.measure.Voltage;
+import org.wpilib.driverstation.internal.DriverStationBackend;
+import org.wpilib.system.RobotController;
 import frc.robot.constants.JsonConstants;
 import frc.robot.util.StateMachineDump;
 import java.util.List;
@@ -124,7 +124,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     // ### Homing Button Transitions
     IntakeState.waitForButtonState.whenFinished().transitionTo(IntakeState.controlToPositionState);
     IntakeState.waitForButtonState
-        .when(DriverStation::isEnabled, "When robot is enabled and button has not been pressed")
+        .when(DriverStationBackend::isEnabled, "When robot is enabled and button has not been pressed")
         .transitionTo(IntakeState.homingWaitForMovementState);
 
     // ### Wait for movement transitions
@@ -132,7 +132,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     // the wait for button state to wait for the operator to re-enable the robot
     //  and restart the homing process.
     IntakeState.homingWaitForMovementState
-        .when(DriverStation::isDisabled, "When robot is disabled during homing")
+        .when(DriverStationBackend::isDisabled, "When robot is disabled during homing")
         .transitionTo(IntakeState.waitForButtonState);
     // If the mechanism starts moving, we assume that it is has started the homing
     // process properly and we transition to the homing wait for stop moving state
@@ -151,7 +151,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     // the wait for button state to wait for the operator to re-enable the robot
     //  and restart the homing process.
     IntakeState.homingWaitForStopMovingState
-        .when(DriverStation::isDisabled, "When robot is disabled during homing")
+        .when(DriverStationBackend::isDisabled, "When robot is disabled during homing")
         .transitionTo(IntakeState.waitForButtonState);
     // If the mechanism starts moving, we assume that we have started the homing
     // process properly and so we wait for it to stop moving by hitting a hard
@@ -216,7 +216,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
 
   @Override
   public void monitoredPeriodic() {
-    long startTimeUs = RobotController.getFPGATime();
+    long startTimeUs = RobotController.getTime();
 
     pivotMotorIO.updateInputs(pivotInputs);
     rollersLeadMotorIO.updateInputs(rollerLeadMotorInputs);
@@ -251,7 +251,7 @@ public class IntakeSubsystem extends MonitoredSubsystem {
     // at the end of the periodic
     rollersFollowerMotorIO.follow(JsonConstants.canBusAssignment.intakeRollersLeadMotorId, false);
 
-    long endTimeUs = RobotController.getFPGATime();
+    long endTimeUs = RobotController.getTime();
     if (JsonConstants.featureFlags.logPeriodicTiming) {
       Logger.recordOutput("PeriodicTime/IntakeMs", (endTimeUs - startTimeUs) / 1000.0);
     }

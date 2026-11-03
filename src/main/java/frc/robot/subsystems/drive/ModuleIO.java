@@ -8,8 +8,8 @@
 package frc.robot.subsystems.drive;
 
 import coppercore.wpilib_interface.tuning.PIDGains;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.Current;
+import org.wpilib.math.geometry.Rotation2d;
+import org.wpilib.units.measure.Current;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ModuleIO {
@@ -23,8 +23,8 @@ public interface ModuleIO {
 
     public boolean turnConnected = false;
     public boolean turnEncoderConnected = false;
-    public Rotation2d turnAbsolutePosition = Rotation2d.kZero;
-    public Rotation2d turnPosition = Rotation2d.kZero;
+    public Rotation2d turnAbsolutePosition = Rotation2d.ZERO;
+    public Rotation2d turnPosition = Rotation2d.ZERO;
     public double turnVelocityRadPerSec = 0.0;
     public double turnAppliedVolts = 0.0;
     public double turnCurrentAmps = 0.0;
