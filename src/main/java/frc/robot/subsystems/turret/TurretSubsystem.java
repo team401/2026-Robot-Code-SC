@@ -472,8 +472,15 @@ public class TurretSubsystem extends MonitoredSubsystem {
   }
 
   private void controlToTurretCentricPositionRaw(Angle goalAngleTurretCentric) {
-    Logger.recordOutput("Turret/GoalAngle", goalAngleTurretCentric);
+    Logger.recordOutput("Turret/GoalAngle", goalAngleTurretCentric); 
     Angle clampedGoalAngle;
+    // With changes to normalize heading
+    // if goalAngleTurretCentric is negative, set it to 360 + goalAngleTurretCentric Degrees 
+
+    if (goalAngleTurretCentric.lt(Degrees.of(0))) {
+      goalAngleTurretCentric = Degrees.of(360).plus(goalAngleTurretCentric);
+    }
+
     /*
      * Clamp the angle by:
      * - If it is within 0 to max turret angle, return it
@@ -481,6 +488,7 @@ public class TurretSubsystem extends MonitoredSubsystem {
      * - If it's greater than max angle but it's closer to max angle than to 360, return max angle
      * - If it's greater than max angle and is closer to 360 than to max angle, return 0 (same as 360)
      * */
+    
     if (goalAngleTurretCentric.lt(JsonConstants.turretConstants.turretDiscontinuityMidpoint)) {
       clampedGoalAngle =
           UnitUtils.clampMeasure(
@@ -495,7 +503,8 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
     Logger.recordOutput("Turret/ClampedGoalAngle", clampedGoalAngle);
 
-    if (!brakeForIntake()) {
+    if (!brakeForIntake()) //Comment this if statement out to let the mechanism move in SIM, leave what is inside the if statement.
+    { 
       motor.controlToPositionExpoProfiled(clampedGoalAngle);
     }
   }
@@ -508,13 +517,12 @@ public class TurretSubsystem extends MonitoredSubsystem {
    */
   protected void controlToGoalHeading() {
     Rotation2d robotRelativeHeading = goalTurretHeading.minus(dependencies.robotHeading);
-    // Rotation2d turretRelativeHeading =
-    //     AngleUtil.normalizeHeading(
-    //         robotRelativeHeading.plus(
-    //             new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle)));
+    Rotation2d turretRelativeHeading =
+            robotRelativeHeading.plus(
+                new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle));
 
-    // Angle adjustedGoalAngle = applyGoalAngleOffset(turretRelativeHeading.getMeasure());
-    // controlToTurretCentricPositionRaw(adjustedGoalAngle);
+    Angle adjustedGoalAngle = applyGoalAngleOffset(turretRelativeHeading.getMeasure());
+    controlToTurretCentricPositionRaw(adjustedGoalAngle);
   }
 
   private Angle getGoalAngleOffset(Angle goalAngleTurretCentric) {
@@ -533,16 +541,12 @@ public class TurretSubsystem extends MonitoredSubsystem {
 
   private Rotation2d getAdjustedGoalTurretHeadingFieldCentric() {
     Rotation2d robotRelativeHeading = goalTurretHeading.minus(dependencies.robotHeading);
-    // Rotation2d turretRelativeHeading =
-    //     AngleUtil.normalizeHeading(
-    //         robotRelativeHeading.plus(
-    //             new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle)));
+    Rotation2d turretRelativeHeading = robotRelativeHeading.plus(new Rotation2d(JsonConstants.turretConstants.headingToTurretAngle));
 
-    // Angle adjustedTurretAngle = applyGoalAngleOffset(turretRelativeHeading.getMeasure());
-    // return new Rotation2d(
-    //         adjustedTurretAngle.minus(JsonConstants.turretConstants.headingToTurretAngle))
-    //     .plus(dependencies.robotHeading);
-    return new Rotation2d(); // TO BE REMOVED
+    Angle adjustedTurretAngle = applyGoalAngleOffset(turretRelativeHeading.getMeasure());
+    return new Rotation2d(
+            adjustedTurretAngle.minus(JsonConstants.turretConstants.headingToTurretAngle))
+        .plus(dependencies.robotHeading);
   }
 
   /**
@@ -596,8 +600,18 @@ public class TurretSubsystem extends MonitoredSubsystem {
     this.goalTurretHeading = goalHeading;
   }
 
+  /**
+   * @return A Rotation2d containing the field-centric goal heading of the turret.
+   */
   public Rotation2d getGoalTurretHeading() {
     return goalTurretHeading;
+  }
+
+  /**
+   * @return A Rotation2d containing the turret-centric goal heading of the turret.
+   */
+  public Rotation2d getTurretCentricHeading() {
+    return goalTurretHeading.minus(dependencies.robotHeading); 
   }
 
   /**
